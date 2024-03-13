@@ -11,8 +11,8 @@ depends: [
   "dune" {>= "3.14"}
   "ocaml" {>= "5.1"}
   "base" {>= "v0.16" & < "v0.17"}
-  "bisect_ppx" {dev & >= "2.8.3"}
   "base_quickcheck" {with-test & >= "v0.16" & < "v0.17"}
+  "bisect_ppx" {dev & >= "2.8.3"}
   "fpath" {>= "0.7.3"}
   "ppx_compare" {>= "v0.16" & < "v0.17"}
   "ppx_enumerate" {>= "v0.16" & < "v0.17"}
