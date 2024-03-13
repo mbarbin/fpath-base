@@ -12,7 +12,7 @@
   Expect_test_helpers
   -open
   Fpath_base)
- (libraries base expect-test-helpers fpath fpath_base)
+ (libraries base expect_test_helpers fpath fpath_base)
  (inline_tests)
  (instrumentation
   (backend bisect_ppx))

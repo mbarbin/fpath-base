@@ -29,7 +29,7 @@
    (and
     :dev
     (>= 2.8.3)))
-  (expect-test-helpers
+  (base_quickcheck
    (and
     :with-test
     (>= v0.16)
@@ -72,5 +72,15 @@
     (< v0.17)))
   (ppx_sexp_value
    (and
+    (>= v0.16)
+    (< v0.17)))
+  (sexp_pretty
+   (and
+    :with-test
+    (>= v0.16)
+    (< v0.17)))
+  (stdio
+   (and
+    :with-test
     (>= v0.16)
     (< v0.17)))))
