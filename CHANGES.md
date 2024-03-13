@@ -1,7 +1,8 @@
-## 0.0.9 (unreleased)
+## 0.0.9 (2024-03-13)
 
 ### Changed
 
+- Vendor `expect-test-helpers`.
 - Rename project `fpath-base`.
 
 ## 0.0.8 (2024-03-05)
