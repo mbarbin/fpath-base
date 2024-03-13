@@ -1,6 +1,6 @@
 (lang dune 3.14)
 
-(name fpath-extended)
+(name fpath-base)
 
 (generate_opam_files)
 
@@ -11,12 +11,12 @@
 (maintainers "Mathieu Barbin")
 
 (source
- (github mbarbin/fpath-extended))
+ (github mbarbin/fpath-base))
 
-(documentation "https://mbarbin.github.io/fpath-extended/")
+(documentation "https://mbarbin.github.io/fpath-base/")
 
 (package
- (name fpath-extended)
+ (name fpath-base)
  (synopsis "Adding a few functions to Fpath to use alongside Base")
  (depends
   (ocaml

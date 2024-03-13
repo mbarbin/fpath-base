@@ -1,3 +1,9 @@
+## 0.0.9 (unreleased)
+
+### Changed
+
+- Rename project `fpath-base`.
+
 ## 0.0.8 (2024-03-05)
 
 ### Changed

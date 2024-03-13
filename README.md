@@ -1,7 +1,7 @@
-# fpath-extended
+# fpath-base
 
-[![CI Status](https://github.com/mbarbin/fpath-extended/workflows/ci/badge.svg)](https://github.com/mbarbin/fpath-extended/actions/workflows/ci.yml)
-[![Coverage Status](https://coveralls.io/repos/github/mbarbin/fpath-extended/badge.svg?branch=main)](https://coveralls.io/github/mbarbin/fpath-extended?branch=main)
+[![CI Status](https://github.com/mbarbin/fpath-base/workflows/ci/badge.svg)](https://github.com/mbarbin/fpath-base/actions/workflows/ci.yml)
+[![Coverage Status](https://coveralls.io/repos/github/mbarbin/fpath-base/badge.svg?branch=main)](https://coveralls.io/github/mbarbin/fpath-base?branch=main)
 
 This library extends the functionality offered by the
 [fpath](https://opam.ocaml.org/packages/fpath/) package to be used by projects
@@ -19,7 +19,7 @@ thus allowing for example:
 
 ```ocaml file=example.ml
 open! Base
-open! Fpath_extended
+open! Fpath_base
 
 let create_fpath_table () = Hashtbl.create (module Fpath)
 ```
@@ -37,7 +37,7 @@ path at the type level (`Absolute_path.t` & `Relative_path.t`).
 
 ## Usage
 
-The intended usage is to open the module `Fpath_extended`, and keep on simply
+The intended usage is to open the module `Fpath_base`, and keep on simply
 using `Fpath` as usual.
 
 ## Motivations
@@ -48,7 +48,7 @@ something that I would consider submitting to the opam repository. TBD.
 ## Code documentation
 
 The code documentation of the latest release is built with `odoc` and published
-to `GitHub` pages [here](https://mbarbin.github.io/fpath-extended).
+to `GitHub` pages [here](https://mbarbin.github.io/fpath-base).
 
 ## Acknowledgements
 

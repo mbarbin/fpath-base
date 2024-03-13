@@ -1,5 +1,5 @@
 (library
- (name fpath_extended_test)
+ (name fpath_base_test)
  (flags
   :standard
   -w
@@ -11,8 +11,8 @@
   -open
   Expect_test_helpers
   -open
-  Fpath_extended)
- (libraries base expect-test-helpers fpath fpath_extended)
+  Fpath_base)
+ (libraries base expect-test-helpers fpath fpath_base)
  (inline_tests)
  (instrumentation
   (backend bisect_ppx))

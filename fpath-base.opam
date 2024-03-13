@@ -4,9 +4,9 @@ synopsis: "Adding a few functions to Fpath to use alongside Base"
 maintainer: ["Mathieu Barbin"]
 authors: ["Mathieu Barbin"]
 license: "MIT"
-homepage: "https://github.com/mbarbin/fpath-extended"
-doc: "https://mbarbin.github.io/fpath-extended/"
-bug-reports: "https://github.com/mbarbin/fpath-extended/issues"
+homepage: "https://github.com/mbarbin/fpath-base"
+doc: "https://mbarbin.github.io/fpath-base/"
+bug-reports: "https://github.com/mbarbin/fpath-base/issues"
 depends: [
   "dune" {>= "3.14"}
   "ocaml" {>= "5.1"}
@@ -39,4 +39,4 @@ build: [
     "@doc" {with-doc}
   ]
 ]
-dev-repo: "git+https://github.com/mbarbin/fpath-extended.git"
+dev-repo: "git+https://github.com/mbarbin/fpath-base.git"
