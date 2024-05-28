@@ -74,6 +74,10 @@
    (and
     (>= v0.17)
     (< v0.18)))
+  (re
+   (and
+    :with-test
+    (>= 1.8.0)))
   (sexp_pretty
    (and
     :with-test
