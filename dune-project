@@ -74,6 +74,8 @@
    (and
     (>= v0.17)
     (< v0.18)))
+  (ppxlib
+   (>= 0.32))
   (re
    (and
     :with-test
