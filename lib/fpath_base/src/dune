@@ -2,7 +2,7 @@
  (name fpath_base)
  (public_name fpath-base)
  (flags :standard -w +a-4-40-41-42-44-45-48-66 -warn-error +a -open Base)
- (libraries base fpath)
+ (libraries base fpath fpath_sexp0)
  (instrumentation
   (backend bisect_ppx))
  (lint
@@ -11,9 +11,6 @@
   (pps
    -unused-code-warnings=force
    ppx_compare
-   ppx_enumerate
    ppx_hash
-   ppx_here
-   ppx_let
    ppx_sexp_conv
    ppx_sexp_value)))

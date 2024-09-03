@@ -1,13 +1,15 @@
 let%expect_test "of_string" =
   let test str =
-    print_s [%sexp (Absolute_path.of_string str : Absolute_path.t Or_error.t)]
+    print_s
+      [%sexp
+        (Absolute_path.of_string str : (Absolute_path.t, [ `Msg of string ]) Result.t)]
   in
   test "";
-  [%expect {| (Error (Absolute_path.of_string "\"\": invalid path")) |}];
+  [%expect {| (Error (Msg "\"\": invalid path")) |}];
   test "/";
   [%expect {| (Ok /) |}];
   test "a";
-  [%expect {| (Error ("Absolute_path.of_fpath: not an absolute path" a)) |}];
+  [%expect {| (Error (Msg "\"a\": not an absolute path")) |}];
   test "/a/b/../..";
   [%expect {| (Ok /) |}];
   ()
@@ -15,15 +17,15 @@ let%expect_test "of_string" =
 
 let%expect_test "v" =
   require_does_raise [%here] (fun () -> Absolute_path.v "");
-  [%expect {| (Absolute_path.of_string "\"\": invalid path") |}];
+  [%expect {| (Invalid_argument "\"\": invalid path") |}];
   ()
 ;;
 
 let%expect_test "of_fpath" =
   let test_fpath f =
     let t = Absolute_path.of_fpath f in
-    if Result.is_error t then print_s [%sexp (t : Absolute_path.t Or_error.t)];
-    Or_error.iter t ~f:(fun t ->
+    if Option.is_none t then print_s [%sexp "not an absolute path"];
+    Option.iter t ~f:(fun t ->
       print_endline (Absolute_path.to_string t);
       let f' = Absolute_path.to_fpath t in
       if Fpath.equal f f'
@@ -49,7 +51,7 @@ let%expect_test "of_fpath" =
         (f  /.)
         (f' /))) |}];
   test_fpath (Fpath.v "a/relative/path");
-  [%expect {| (Error ("Absolute_path.of_fpath: not an absolute path" a/relative/path)) |}];
+  [%expect {| "not an absolute path" |}];
   require_does_raise [%here] (fun () -> Fpath.v "");
   [%expect {| (Invalid_argument "\"\": invalid path") |}];
   ()
@@ -89,7 +91,7 @@ let%expect_test "extend" =
   let file str = str |> File_name.v in
   let test a b = print_s [%sexp (Absolute_path.extend a b : Absolute_path.t)] in
   require_does_raise [%here] (fun () : File_name.t -> file "a/b");
-  [%expect {| ("File_name.of_string: invalid file name" a/b) |}];
+  [%expect {| (Invalid_argument "a/b: invalid file name") |}];
   require_does_not_raise [%here] (fun () -> ignore (file ".." : File_name.t));
   [%expect {||}];
   test (abs "/") (file "a");
@@ -137,68 +139,43 @@ let%expect_test "parent" =
 let%expect_test "chop_prefix" =
   let abs = Absolute_path.v in
   let test prefix path =
-    let result = Absolute_path.chop_prefix ~prefix path in
-    print_s [%sexp (result : Relative_path.t Or_error.t)]
+    let result = Absolute_path.chop_prefix path ~prefix in
+    print_s [%sexp (result : Relative_path.t option)]
   in
   test (abs "/foo") (abs "/foo/bar");
-  [%expect {| (Ok bar) |}];
+  [%expect {| (bar) |}];
   test (abs "/foo/") (abs "/foo/bar");
-  [%expect {| (Ok bar) |}];
+  [%expect {| (bar) |}];
   test (abs "/foo") (abs "/foo/bar/");
-  [%expect {| (Ok bar/) |}];
+  [%expect {| (bar/) |}];
   test (abs "/foo/") (abs "/foo/bar/");
-  [%expect {| (Ok bar/) |}];
+  [%expect {| (bar/) |}];
   test (abs "/foo/") (abs "/foo/");
-  [%expect {| (Ok ./) |}];
+  [%expect {| (./) |}];
   test (abs "/foo") (abs "/foo/");
-  [%expect {| (Ok ./) |}];
+  [%expect {| (./) |}];
   test (abs "/foo") (abs "/foo");
-  [%expect {| (Ok ./) |}];
+  [%expect {| (./) |}];
   test (abs "/foo/") (abs "/foo");
-  [%expect
-    {|
-    (Error (
-      "Absolute_path.chop_prefix: not a prefix" (
-        (prefix /foo/)
-        (t      /foo)))) |}];
+  [%expect {| () |}];
   test (abs "/foo") (abs "/foo/bar/baz");
-  [%expect {| (Ok bar/baz) |}];
+  [%expect {| (bar/baz) |}];
   test (abs "/foo") (abs "/bar/baz");
-  [%expect
-    {|
-    (Error (
-      "Absolute_path.chop_prefix: not a prefix" (
-        (prefix /foo)
-        (t      /bar/baz)))) |}];
+  [%expect {| () |}];
   test (abs "/foo/bar") (abs "/foo");
-  [%expect
-    {|
-    (Error (
-      "Absolute_path.chop_prefix: not a prefix" (
-        (prefix /foo/bar)
-        (t      /foo)))) |}];
+  [%expect {| () |}];
   test (abs "/foo/bar") (abs "/foo/bar/baz");
-  [%expect {| (Ok baz) |}];
+  [%expect {| (baz) |}];
   test (abs "/foo/bar") (abs "/foo/bar/baz/qux");
-  [%expect {| (Ok baz/qux) |}];
+  [%expect {| (baz/qux) |}];
   (* Paths are normalized before the function call. *)
   test (abs "/foo/bar") (abs "/foo/bar/../baz");
-  [%expect
-    {|
-    (Error (
-      "Absolute_path.chop_prefix: not a prefix" (
-        (prefix /foo/bar)
-        (t      /foo/baz)))) |}];
+  [%expect {| () |}];
   test (abs "/foo/bar") (abs "/foo/sna/../bar/baz");
-  [%expect {|(Ok baz) |}];
+  [%expect {| (baz) |}];
   (* Beware of string prefix vs path prefix *)
   test (abs "/foo/bar") (abs "/foo/bar-baz");
-  [%expect
-    {|
-    (Error (
-      "Absolute_path.chop_prefix: not a prefix" (
-        (prefix /foo/bar)
-        (t      /foo/bar-baz)))) |}];
+  [%expect {| () |}];
   ()
 ;;
 
@@ -207,133 +184,53 @@ let%expect_test "chop_suffix" =
   let rel = Relative_path.v in
   let test path suffix =
     let result = Absolute_path.chop_suffix path ~suffix in
-    print_s [%sexp (result : Absolute_path.t Or_error.t)]
+    print_s [%sexp (result : Absolute_path.t option)]
   in
   test (abs "/foo/bar") (rel "bar");
-  [%expect {| (Ok /foo) |}];
+  [%expect {| (/foo) |}];
   test (abs "/foo/bar") (rel "bar/");
-  [%expect
-    {|
-    (Error (
-      "Absolute_path.chop_suffix: not a suffix" (
-        (t      /foo/bar)
-        (suffix bar/)))) |}];
+  [%expect {| () |}];
   test (abs "/foo/bar/") (rel "bar");
-  [%expect
-    {|
-    (Error (
-      "Absolute_path.chop_suffix: not a suffix" (
-        (t      /foo/bar/)
-        (suffix bar)))) |}];
+  [%expect {| () |}];
   test (abs "/foo/bar/") (rel "bar/");
-  [%expect {| (Ok /foo) |}];
+  [%expect {| (/foo) |}];
   test (abs "/foo/bar") (rel ".");
-  [%expect
-    {|
-    (Error (
-      "Absolute_path.chop_suffix: not a suffix" (
-        (t      /foo/bar)
-        (suffix ./)))) |}];
+  [%expect {| () |}];
   test (abs "/foo/bar/") (rel ".");
-  [%expect
-    {|
-    (Error (
-      "Absolute_path.chop_suffix: not a suffix" (
-        (t      /foo/bar/)
-        (suffix ./)))) |}];
+  [%expect {| () |}];
   test (abs "/foo/bar/.") (rel ".");
-  [%expect
-    {|
-    (Error (
-      "Absolute_path.chop_suffix: not a suffix" (
-        (t      /foo/bar/)
-        (suffix ./)))) |}];
+  [%expect {| () |}];
   test (abs "/bar") (rel "foo/bar");
-  [%expect
-    {|
-    (Error (
-      "Absolute_path.chop_suffix: not a suffix" (
-        (t      /bar)
-        (suffix foo/bar)))) |}];
+  [%expect {| () |}];
   test (abs "/foo/bar") (rel "foo/bar");
-  [%expect {| (Ok /) |}];
+  [%expect {| (/) |}];
   test (abs "/foo/bar") (rel "bar/");
-  [%expect
-    {|
-    (Error (
-      "Absolute_path.chop_suffix: not a suffix" (
-        (t      /foo/bar)
-        (suffix bar/)))) |}];
+  [%expect {| () |}];
   test (abs "/foo/bar/") (rel "bar");
-  [%expect
-    {|
-    (Error (
-      "Absolute_path.chop_suffix: not a suffix" (
-        (t      /foo/bar/)
-        (suffix bar)))) |}];
+  [%expect {| () |}];
   test (abs "/foo/bar/") (rel "bar/");
-  [%expect {| (Ok /foo) |}];
+  [%expect {| (/foo) |}];
   test (abs "/foo/bar") (rel "baz");
-  [%expect
-    {|
-    (Error (
-      "Absolute_path.chop_suffix: not a suffix" (
-        (t      /foo/bar)
-        (suffix baz)))) |}];
+  [%expect {| () |}];
   test (abs "/foo/bar/baz") (rel "bar/baz");
-  [%expect {| (Ok /foo) |}];
+  [%expect {| (/foo) |}];
   test (abs "/foo/bar/baz") (rel "baz/qux");
-  [%expect
-    {|
-    (Error (
-      "Absolute_path.chop_suffix: not a suffix" (
-        (t      /foo/bar/baz)
-        (suffix baz/qux)))) |}];
+  [%expect {| () |}];
   test (abs "/foo/bar/baz") (rel ".");
-  [%expect
-    {|
-    (Error (
-      "Absolute_path.chop_suffix: not a suffix" (
-        (t      /foo/bar/baz)
-        (suffix ./)))) |}];
+  [%expect {| () |}];
   test (abs "/foo/bar/baz/") (rel ".");
-  [%expect
-    {|
-    (Error (
-      "Absolute_path.chop_suffix: not a suffix" (
-        (t      /foo/bar/baz/)
-        (suffix ./)))) |}];
+  [%expect {| () |}];
   test (abs "/foo/bar/baz") (rel "./");
-  [%expect
-    {|
-    (Error (
-      "Absolute_path.chop_suffix: not a suffix" (
-        (t      /foo/bar/baz)
-        (suffix ./)))) |}];
+  [%expect {| () |}];
   test (abs "/foo/bar/baz/") (rel "./");
-  [%expect
-    {|
-    (Error (
-      "Absolute_path.chop_suffix: not a suffix" (
-        (t      /foo/bar/baz/)
-        (suffix ./)))) |}];
+  [%expect {| () |}];
   test (abs "/foo/bar/baz") (rel "..");
-  [%expect
-    {|
-    (Error (
-      "Absolute_path.chop_suffix: not a suffix" (
-        (t      /foo/bar/baz)
-        (suffix ../)))) |}];
+  [%expect {| () |}];
   test (abs "/foo/bar/baz") (rel "foo/../baz");
-  [%expect {| (Ok /foo/bar) |}];
+  [%expect {| (/foo/bar) |}];
   (* Beware of string suffix vs path suffix *)
   test (abs "/foo/bar-baz") (rel "-baz");
-  [%expect
-    {|
-    (Error (
-      "Absolute_path.chop_suffix: not a suffix" (
-        (t      /foo/bar-baz)
-        (suffix -baz)))) |}];
+  [%expect {| () |}];
   ()
 ;;
 

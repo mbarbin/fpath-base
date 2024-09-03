@@ -6,21 +6,21 @@ type absolute_path = private Fpath.t
 type relative_path = private Fpath.t
 
 module Absolute_path : sig
-  type t = absolute_path [@@deriving compare, equal, hash, sexp_of]
+  type t = absolute_path [@@deriving sexp_of]
 
-  include Comparable.S with type t := t
-
+  val compare : t -> t -> int
+  val equal : t -> t -> bool
   val to_fpath : t -> Fpath.t
   val to_string : t -> string
 
   (** [of_fpath p] returns a normalized of [p] classified as an absolute path.
-      Returns an error if [p] is not an absolute path. *)
-  val of_fpath : Fpath.t -> t Or_error.t
+      Returns [None] if [p] is not an absolute path. *)
+  val of_fpath : Fpath.t -> t option
 
   (** This is a convenient wrapper to compose {!Fpath.of_string} and {!of_fpath}. *)
-  val of_string : string -> t Or_error.t
+  val of_string : string -> (t, [ `Msg of string ]) Result.t
 
-  (** [v str] is [of_string str |> Or_error.ok_exn]. *)
+  (** [v str] returns a [t] or raises [Invalid_argument]. *)
   val v : string -> t
 
   (** The root path ["/"]. *)
@@ -29,8 +29,8 @@ module Absolute_path : sig
   val append : t -> relative_path -> t
   val extend : t -> File_name.t -> t
   val parent : t -> t option
-  val chop_prefix : prefix:t -> t -> relative_path Or_error.t
-  val chop_suffix : t -> suffix:relative_path -> t Or_error.t
+  val chop_prefix : t -> prefix:t -> relative_path option
+  val chop_suffix : t -> suffix:relative_path -> t option
   val is_dir_path : t -> bool
   val to_dir_path : t -> t
 
@@ -41,23 +41,23 @@ module Absolute_path : sig
 end
 
 module Relative_path : sig
-  type t = relative_path [@@deriving compare, equal, hash, sexp_of]
+  type t = relative_path [@@deriving sexp_of]
 
-  include Comparable.S with type t := t
-
+  val compare : t -> t -> int
+  val equal : t -> t -> bool
   val to_fpath : t -> Fpath.t
   val to_string : t -> string
 
   (** [of_fpath p] returns a normalized of [p] classified as a relative path.
-      Returns an error if [p] is not a relative path. Note, in particular that
+      Returns [None] if [p] is not a relative path. Note, in particular that
       due to normalization, ["."] immediately becomes ["./"] (the empty
       relative path). *)
-  val of_fpath : Fpath.t -> t Or_error.t
+  val of_fpath : Fpath.t -> t option
 
   (** This is a convenient wrapper to compose {!Fpath.of_string} and {!of_fpath}. *)
-  val of_string : string -> t Or_error.t
+  val of_string : string -> (t, [ `Msg of string ]) Result.t
 
-  (** [v str] is [of_string str |> Or_error.ok_exn]. *)
+  (** [v str] returns a [t] or raises [Invalid_argument]. *)
   val v : string -> t
 
   (** The empty relative path ["./"]. *)
@@ -67,8 +67,8 @@ module Relative_path : sig
   val extend : t -> File_name.t -> t
   val parent : t -> t option
   val of_list : File_name.t list -> t
-  val chop_prefix : prefix:t -> t -> t Or_error.t
-  val chop_suffix : t -> suffix:t -> t Or_error.t
+  val chop_prefix : t -> prefix:t -> t option
+  val chop_suffix : t -> suffix:t -> t option
   val is_dir_path : t -> bool
   val to_dir_path : t -> t
 end
