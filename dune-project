@@ -21,21 +21,23 @@
  (depends
   (ocaml
    (>= 5.2))
+  (ocamlformat
+   (and
+    :with-dev-setup
+    (= 0.26.2)))
   (base
    (and
     (>= v0.17)
     (< v0.18)))
   (bisect_ppx
    (and
-    :dev
+    :with-dev-setup
     (>= 2.8.3)))
   (fpath
    (>= 0.7.3))
+  (fpath-sexp0
+   (= :version))
   (ppx_compare
-   (and
-    (>= v0.17)
-    (< v0.18)))
-  (ppx_enumerate
    (and
     (>= v0.17)
     (< v0.18)))
@@ -43,17 +45,9 @@
    (and
     (>= v0.17)
     (< v0.18)))
-  (ppx_here
-   (and
-    (>= v0.17)
-    (< v0.18)))
   (ppx_js_style
    (and
-    :dev
-    (>= v0.17)
-    (< v0.18)))
-  (ppx_let
-   (and
+    :with-dev-setup
     (>= v0.17)
     (< v0.18)))
   (ppx_sexp_conv
@@ -68,11 +62,52 @@
    (>= 0.33))))
 
 (package
+ (name fpath-sexp0)
+ (synopsis
+  "Adding sexp converters to Fpath as well as Abs and Rel path modules")
+ (depends
+  (ocaml
+   (>= 5.2))
+  (ocamlformat
+   (and
+    :with-dev-setup
+    (= 0.26.2)))
+  (bisect_ppx
+   (and
+    :with-dev-setup
+    (>= 2.8.3)))
+  (fpath
+   (>= 0.7.3))
+  (ppx_js_style
+   (and
+    :with-dev-setup
+    (>= v0.17)
+    (< v0.18)))
+  (ppx_sexp_conv
+   (and
+    (>= v0.17)
+    (< v0.18)))
+  (ppx_sexp_value
+   (and
+    (>= v0.17)
+    (< v0.18)))
+  (ppxlib
+   (>= 0.33))
+  (sexplib0
+   (and
+    (>= v0.17)
+    (< v0.18)))))
+
+(package
  (name fpath-base-tests)
  (synopsis "Tests for fpath-base")
  (depends
   (ocaml
    (>= 5.2))
+  (ocamlformat
+   (and
+    :with-dev-setup
+    (= 0.26.2)))
   (base
    (and
     (>= v0.17)
@@ -83,7 +118,7 @@
     (< v0.18)))
   (bisect_ppx
    (and
-    :dev
+    :with-dev-setup
     (>= 2.8.3)))
   (expect_test_helpers_core
    (and
@@ -92,6 +127,8 @@
   (fpath
    (>= 0.7.3))
   (fpath-base
+   (= :version))
+  (fpath-sexp0
    (= :version))
   (ppx_compare
    (and
@@ -115,7 +152,7 @@
     (< v0.18)))
   (ppx_js_style
    (and
-    :dev
+    :with-dev-setup
     (>= v0.17)
     (< v0.18)))
   (ppx_let
@@ -133,8 +170,7 @@
   (ppxlib
    (>= 0.33))
   (re
-   (and
-    (>= 1.8.0)))
+   (>= 1.8.0))
   (sexp_pretty
    (and
     (>= v0.17)

@@ -1,7 +1,9 @@
 let%expect_test "of_string" =
-  let test str = print_s [%sexp (File_name.of_string str : File_name.t Or_error.t)] in
+  let test str =
+    print_s [%sexp (File_name.of_string str : (File_name.t, [ `Msg of string ]) Result.t)]
+  in
   test "";
-  [%expect {| (Error ("File_name.of_string: invalid file name" "")) |}];
+  [%expect {| (Error (Msg ": invalid file name")) |}];
   test "a";
   [%expect {| (Ok a) |}];
   test ".a";
@@ -9,11 +11,11 @@ let%expect_test "of_string" =
   test "..";
   [%expect {| (Ok ..) |}];
   test "/";
-  [%expect {| (Error ("File_name.of_string: invalid file name" /)) |}];
+  [%expect {| (Error (Msg "/: invalid file name")) |}];
   test "a/b";
-  [%expect {| (Error ("File_name.of_string: invalid file name" a/b)) |}];
+  [%expect {| (Error (Msg "a/b: invalid file name")) |}];
   test "a\000b";
-  [%expect {| (Error ("File_name.of_string: invalid file name" "a\000b")) |}];
+  [%expect {| (Error (Msg "a\000b: invalid file name")) |}];
   ()
 ;;
 

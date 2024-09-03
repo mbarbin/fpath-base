@@ -12,11 +12,11 @@
     This module provides functions to convert between strings and file_names,
     validate file_names, and some common file_names. *)
 
-type t [@@deriving compare, equal, hash, sexp_of]
+type t [@@deriving sexp_of]
 
-include Comparable.S with type t := t
-
-val of_string : string -> t Or_error.t
+val compare : t -> t -> int
+val equal : t -> t -> bool
+val of_string : string -> (t, [ `Msg of string ]) Result.t
 val to_string : t -> string
 val v : string -> t
 

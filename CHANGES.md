@@ -1,16 +1,13 @@
-## 0.0.11 (unreleased)
+## 0.1.0 (2024-09-03)
 
 ### Added
 
+- Added minimal library depending on `sexplib0` only.
+
 ### Changed
 
+- Rewrite `Fpath_base` on top of `Fpath_sexp0`.
 - Remove vendor, use `expect_test_helpers_core.expect_test_helpers_base`.
-
-### Deprecated
-
-### Fixed
-
-### Removed
 
 ## 0.0.10 (2024-07-26)
 
