@@ -6,4 +6,4 @@ end
 
 module Absolute_path = Path.Absolute_path
 module Relative_path = Path.Relative_path
-module File_name = File_name
+module Fpart = Fpart

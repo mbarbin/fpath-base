@@ -12,7 +12,7 @@ let invariant t =
 let to_string t = t
 
 let of_string s =
-  if invariant s then Ok s else Error (`Msg (Printf.sprintf "%s: invalid file name" s))
+  if invariant s then Ok s else Error (`Msg (Printf.sprintf "%s: invalid file part" s))
 ;;
 
 let v t =

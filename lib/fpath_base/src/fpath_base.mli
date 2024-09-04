@@ -19,9 +19,9 @@ module Relative_path : sig
   include Comparable.S with type t := t
 end
 
-module File_name : sig
-  type t = Fpath_sexp0.File_name.t [@@deriving hash]
+module Fpart : sig
+  type t = Fpath_sexp0.Fpart.t [@@deriving hash]
 
-  include module type of Fpath_sexp0.File_name with type t := t
+  include module type of Fpath_sexp0.Fpart with type t := t
   include Comparable.S with type t := t
 end

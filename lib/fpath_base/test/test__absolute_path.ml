@@ -88,11 +88,11 @@ let%expect_test "append" =
 
 let%expect_test "extend" =
   let abs = Absolute_path.v in
-  let file str = str |> File_name.v in
+  let file str = str |> Fpart.v in
   let test a b = print_s [%sexp (Absolute_path.extend a b : Absolute_path.t)] in
-  require_does_raise [%here] (fun () : File_name.t -> file "a/b");
-  [%expect {| (Invalid_argument "a/b: invalid file name") |}];
-  require_does_not_raise [%here] (fun () -> ignore (file ".." : File_name.t));
+  require_does_raise [%here] (fun () : Fpart.t -> file "a/b");
+  [%expect {| (Invalid_argument "a/b: invalid file part") |}];
+  require_does_not_raise [%here] (fun () -> ignore (file ".." : Fpart.t));
   [%expect {||}];
   test (abs "/") (file "a");
   [%expect {| /a |}];
@@ -287,4 +287,36 @@ let%expect_test "relativize" =
   test ~root:(abs "/") (v "../foo/bar");
   [%expect {| /foo/bar |}];
   ()
+;;
+
+let%expect_test "hashtbl" =
+  let t = Hashtbl.create (module Absolute_path) in
+  Hashtbl.set t ~key:(Absolute_path.v "/tmp/my-file") ~data:42;
+  print_s [%sexp (t : int Hashtbl.M(Absolute_path).t)];
+  [%expect {| ((/tmp/my-file 42)) |}]
+;;
+
+module Pair = struct
+  [@@@coverage off]
+
+  type t =
+    { a : Absolute_path.t
+    ; b : Absolute_path.t
+    }
+  [@@deriving compare, hash, sexp_of]
+end
+
+let%expect_test "hash-fold-t" =
+  let t = Hashtbl.create (module Pair) in
+  Hashtbl.set
+    t
+    ~key:{ a = Absolute_path.v "/tmp/a"; b = Absolute_path.v "/tmp/a" }
+    ~data:42;
+  print_s [%sexp (t : int Hashtbl.M(Pair).t)];
+  [%expect {|
+    ((
+      ((a /tmp/a)
+       (b /tmp/a))
+      42))
+    |}]
 ;;

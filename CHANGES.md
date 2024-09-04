@@ -1,3 +1,10 @@
+## 0.2.0 (2024-09-04)
+
+### Changed
+
+- Rename `File_name` into `Fpart`.
+- Remove need for ppx preprocessing.
+
 ## 0.1.0 (2024-09-03)
 
 ### Added
