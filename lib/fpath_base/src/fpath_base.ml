@@ -25,8 +25,8 @@ module Relative_path = struct
   let hash_fold_t state t = String.hash_fold_t state (T.to_string t)
 end
 
-module File_name = struct
-  module T = Fpath_sexp0.File_name
+module Fpart = struct
+  module T = Fpath_sexp0.Fpart
   include T
   include Comparable.Make (T)
 

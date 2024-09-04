@@ -105,11 +105,11 @@ let%expect_test "append" =
 
 let%expect_test "extend" =
   let rel = Relative_path.v in
-  let file str = str |> File_name.v in
+  let file str = str |> Fpart.v in
   let test a b = print_s [%sexp (Relative_path.extend a b : Relative_path.t)] in
-  require_does_raise [%here] (fun () : File_name.t -> file "a/b");
-  [%expect {| (Invalid_argument "a/b: invalid file name") |}];
-  require_does_not_raise [%here] (fun () -> ignore (file ".." : File_name.t));
+  require_does_raise [%here] (fun () : Fpart.t -> file "a/b");
+  [%expect {| (Invalid_argument "a/b: invalid file part") |}];
+  require_does_not_raise [%here] (fun () -> ignore (file ".." : Fpart.t));
   [%expect {| |}];
   test Relative_path.empty (file "a");
   [%expect {| a |}];
@@ -155,7 +155,7 @@ let%expect_test "parent" =
 
 let%expect_test "of_list" =
   let test files =
-    let result = Relative_path.of_list (List.map files ~f:File_name.v) in
+    let result = Relative_path.of_list (List.map files ~f:Fpart.v) in
     print_s [%sexp (result : Relative_path.t)]
   in
   test [];
@@ -290,4 +290,36 @@ let%expect_test "to_dir_path" =
   test "./";
   [%expect {| ./ |}];
   ()
+;;
+
+let%expect_test "hashtbl" =
+  let t = Hashtbl.create (module Relative_path) in
+  Hashtbl.set t ~key:(Relative_path.v "path/to/my-file") ~data:42;
+  print_s [%sexp (t : int Hashtbl.M(Relative_path).t)];
+  [%expect {| ((path/to/my-file 42)) |}]
+;;
+
+module Pair = struct
+  [@@@coverage off]
+
+  type t =
+    { a : Relative_path.t
+    ; b : Relative_path.t
+    }
+  [@@deriving compare, hash, sexp_of]
+end
+
+let%expect_test "hash-fold-t" =
+  let t = Hashtbl.create (module Pair) in
+  Hashtbl.set
+    t
+    ~key:{ a = Relative_path.v "path/to/a"; b = Relative_path.v "path/to/b" }
+    ~data:42;
+  print_s [%sexp (t : int Hashtbl.M(Pair).t)];
+  [%expect {|
+    ((
+      ((a path/to/a)
+       (b path/to/b))
+      42))
+    |}]
 ;;

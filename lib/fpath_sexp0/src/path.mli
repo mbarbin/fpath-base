@@ -6,8 +6,9 @@ type absolute_path = private Fpath.t
 type relative_path = private Fpath.t
 
 module Absolute_path : sig
-  type t = absolute_path [@@deriving sexp_of]
+  type t = absolute_path
 
+  val sexp_of_t : t -> Sexplib0.Sexp.t
   val compare : t -> t -> int
   val equal : t -> t -> bool
   val to_fpath : t -> Fpath.t
@@ -27,7 +28,7 @@ module Absolute_path : sig
   val root : t
 
   val append : t -> relative_path -> t
-  val extend : t -> File_name.t -> t
+  val extend : t -> Fpart.t -> t
   val parent : t -> t option
   val chop_prefix : t -> prefix:t -> relative_path option
   val chop_suffix : t -> suffix:relative_path -> t option
@@ -41,8 +42,9 @@ module Absolute_path : sig
 end
 
 module Relative_path : sig
-  type t = relative_path [@@deriving sexp_of]
+  type t = relative_path
 
+  val sexp_of_t : t -> Sexplib0.Sexp.t
   val compare : t -> t -> int
   val equal : t -> t -> bool
   val to_fpath : t -> Fpath.t
@@ -64,9 +66,9 @@ module Relative_path : sig
   val empty : t
 
   val append : t -> t -> t
-  val extend : t -> File_name.t -> t
+  val extend : t -> Fpart.t -> t
   val parent : t -> t option
-  val of_list : File_name.t list -> t
+  val of_list : Fpart.t list -> t
   val chop_prefix : t -> prefix:t -> t option
   val chop_suffix : t -> suffix:t -> t option
   val is_dir_path : t -> bool
