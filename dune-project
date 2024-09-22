@@ -17,7 +17,7 @@
 
 (package
  (name fpath-base)
- (synopsis "Adding a few functions to Fpath to use alongside Base")
+ (synopsis "Adds a few functions to Fpath to use alongside Base")
  (depends
   (ocaml
    (>= 5.2))
@@ -28,18 +28,12 @@
   (fpath
    (>= 0.7.3))
   (fpath-sexp0
-   (= :version))
-  (ppx_hash
-   (and
-    (>= v0.17)
-    (< v0.18)))
-  (ppxlib
-   (>= 0.33))))
+   (= :version))))
 
 (package
  (name fpath-sexp0)
  (synopsis
-  "Adding sexp converters to Fpath as well as Abs and Rel path modules")
+  "Adds Fpath.sexp_of_t and defines 3 new modules: Fpart, Absolute_path and Relative_path")
  (depends
   (ocaml
    (>= 5.2))
