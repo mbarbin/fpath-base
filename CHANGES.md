@@ -1,9 +1,15 @@
+## 0.2.1 (2024-09-22)
+
+### Changed
+
+- Remove need for ppx preprocessing in `fpath-base`.
+
 ## 0.2.0 (2024-09-04)
 
 ### Changed
 
 - Rename `File_name` into `Fpart`.
-- Remove need for ppx preprocessing.
+- Remove need for ppx preprocessing in `fpath-sexp0`.
 
 ## 0.1.0 (2024-09-03)
 
