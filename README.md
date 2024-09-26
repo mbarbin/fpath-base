@@ -87,6 +87,10 @@ We liked the `Fpath` module and wanted to make it seamlessly compatible with pro
 
 The code documentation of the latest release is built with `odoc` and published to `GitHub` pages [here](https://mbarbin.github.io/fpath-base).
 
+## Known Limitations
+
+At the moment we only needed and tested the library on `ubuntu-latest`. We assume it is *broken* on Windows. See this [discussion](https://github.com/mbarbin/fpath-base/discussions/7).
+
 ## Acknowledgements
 
 We would like to thank to Daniel Bünzli and the fpath programmers for the original `fpath` package, which this project extends. The implementation of `Absolute_path` and `Relative_path` is based on functionality from the `Fpath` module. We greatly appreciate Daniel's contribution to the open source community and the foundational work they provided, which has been instrumental in the development of this project. `Fpath`'s copyright and permission notice are included at the root of this project, in the file `LICENSE.fpath`.
