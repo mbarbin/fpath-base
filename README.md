@@ -83,7 +83,7 @@ You may do this either by opening the package in your `ml/mli` files or via `dun
 
 We liked the `Fpath` module and wanted to make it seamlessly compatible with projects using `sexp` and `base`.
 
-## Code documentation
+## Code Documentation
 
 The code documentation of the latest release is built with `odoc` and published to `GitHub` pages [here](https://mbarbin.github.io/fpath-base).
 
