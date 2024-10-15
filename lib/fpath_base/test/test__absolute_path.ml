@@ -272,6 +272,31 @@ let%expect_test "to_dir_path" =
   ()
 ;;
 
+let%expect_test "rem_empty_seg" =
+  let test path =
+    let is_dir_path = Absolute_path.is_dir_path path in
+    let path2 = Absolute_path.rem_empty_seg path in
+    let is_dir_path2 = Absolute_path.is_dir_path path2 in
+    print_s
+      [%sexp
+        { path : Absolute_path.t; is_dir_path : bool }
+        , { path2 : Absolute_path.t; is_dir_path2 : bool }]
+  in
+  test (Absolute_path.v "/tmp/my-dir/");
+  [%expect
+    {|
+    (((path  /tmp/my-dir/) (is_dir_path  true))
+     ((path2 /tmp/my-dir)  (is_dir_path2 false)))
+    |}];
+  test (Absolute_path.v "/tmp/my-file");
+  [%expect
+    {|
+    (((path  /tmp/my-file) (is_dir_path  false))
+     ((path2 /tmp/my-file) (is_dir_path2 false)))
+    |}];
+  ()
+;;
+
 let%expect_test "relativize" =
   let v str = str |> Fpath.v in
   let abs = Absolute_path.v in

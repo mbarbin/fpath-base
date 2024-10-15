@@ -292,6 +292,31 @@ let%expect_test "to_dir_path" =
   ()
 ;;
 
+let%expect_test "rem_empty_seg" =
+  let test path =
+    let is_dir_path = Relative_path.is_dir_path path in
+    let path2 = Relative_path.rem_empty_seg path in
+    let is_dir_path2 = Relative_path.is_dir_path path2 in
+    print_s
+      [%sexp
+        { path : Relative_path.t; is_dir_path : bool }
+        , { path2 : Relative_path.t; is_dir_path2 : bool }]
+  in
+  test (Relative_path.v "tmp/my-dir/");
+  [%expect
+    {|
+    (((path  tmp/my-dir/) (is_dir_path  true))
+     ((path2 tmp/my-dir)  (is_dir_path2 false)))
+    |}];
+  test (Relative_path.v "tmp/my-file");
+  [%expect
+    {|
+    (((path  tmp/my-file) (is_dir_path  false))
+     ((path2 tmp/my-file) (is_dir_path2 false)))
+    |}];
+  ()
+;;
+
 let%expect_test "hashtbl" =
   let t = Hashtbl.create (module Relative_path) in
   Hashtbl.set t ~key:(Relative_path.v "path/to/my-file") ~data:42;

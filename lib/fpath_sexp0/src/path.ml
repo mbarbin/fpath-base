@@ -9,10 +9,12 @@ let parent t =
   if Fpath.equal t t' then None else Some t'
 ;;
 
+let empty_rel_path = Fpath.v ("." ^ Fpath.dir_sep)
+
 let chop_prefix t ~prefix =
   match Fpath.rem_prefix prefix t with
   | Some t -> Some t
-  | None -> if Fpath.equal prefix t then Some Fpath.(v "./") else None
+  | None -> if Fpath.equal prefix t then Some empty_rel_path else None
 ;;
 
 let chop_suffix ~empty t ~suffix =
@@ -65,6 +67,7 @@ module Absolute_path = struct
   let chop_suffix t ~suffix = chop_suffix ~empty:root t ~suffix
   let is_dir_path = Fpath.is_dir_path
   let to_dir_path = Fpath.to_dir_path
+  let rem_empty_seg = Fpath.rem_empty_seg
 
   let relativize ~root f =
     let f = Fpath.normalize f in
@@ -99,7 +102,7 @@ module Relative_path = struct
     | Error (`Msg m) -> invalid_arg m
   ;;
 
-  let empty = Fpath.v "./"
+  let empty = empty_rel_path
   let append = append
   let extend = extend
   let parent = parent
@@ -108,6 +111,7 @@ module Relative_path = struct
   let chop_suffix t ~suffix = chop_suffix ~empty t ~suffix
   let is_dir_path = Fpath.is_dir_path
   let to_dir_path = Fpath.to_dir_path
+  let rem_empty_seg = Fpath.rem_empty_seg
 end
 
 module Export = struct

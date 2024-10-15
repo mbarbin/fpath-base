@@ -36,6 +36,7 @@ module Absolute_path : sig
   val chop_suffix : t -> suffix:relative_path -> t option
   val is_dir_path : t -> bool
   val to_dir_path : t -> t
+  val rem_empty_seg : t -> t
 
   (** Converts a Path.t to an Absolute_path.t:
       - If the path is already absolute, that's the answer.
@@ -77,6 +78,7 @@ module Relative_path : sig
   val chop_suffix : t -> suffix:t -> t option
   val is_dir_path : t -> bool
   val to_dir_path : t -> t
+  val rem_empty_seg : t -> t
 end
 
 (** This module is re-exported as part of the [Fpath] module. For example:

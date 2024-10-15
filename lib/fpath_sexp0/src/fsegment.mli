@@ -1,15 +1,18 @@
 (** Part of a file path.
 
-    A [Fpart.t] represents a segment of a file path, i.e., the parts of the
+    A [Fsegment.t] represents a segment of a file path, i.e., the parts of the
     path that are separated by the directory separator character.
 
     For example, in the file path ["/home/user/documents/file.txt"], the
     segments are [["home" ; "user" ; "documents" ; "file.txt"]].
 
-    A valid file part cannot contain ['/'] or null characters.
+    A valid file segment cannot contain ['/'], the directory separator char or
+    null characters.
 
-    This module provides functions to convert between strings and file parts,
-    validate file parts, and some common file parts. *)
+    By contrast to Fpath's [seg], a [Fsegment.t] may not be empty.
+
+    This module provides functions to convert between strings and file segments,
+    validate segments, and some common file segments. *)
 
 type t
 
