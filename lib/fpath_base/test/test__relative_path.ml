@@ -108,7 +108,7 @@ let%expect_test "extend" =
   let file str = str |> Fpart.v in
   let test a b = print_s [%sexp (Relative_path.extend a b : Relative_path.t)] in
   require_does_raise [%here] (fun () : Fpart.t -> file "a/b");
-  [%expect {| (Invalid_argument "a/b: invalid file part") |}];
+  [%expect {| (Invalid_argument "a/b: invalid file segment") |}];
   require_does_not_raise [%here] (fun () -> ignore (file ".." : Fpart.t));
   [%expect {| |}];
   test Relative_path.empty (file "a");
@@ -289,6 +289,31 @@ let%expect_test "to_dir_path" =
   [%expect {| foo/ |}];
   test "./";
   [%expect {| ./ |}];
+  ()
+;;
+
+let%expect_test "rem_empty_seg" =
+  let test path =
+    let is_dir_path = Relative_path.is_dir_path path in
+    let path2 = Relative_path.rem_empty_seg path in
+    let is_dir_path2 = Relative_path.is_dir_path path2 in
+    print_s
+      [%sexp
+        { path : Relative_path.t; is_dir_path : bool }
+        , { path2 : Relative_path.t; is_dir_path2 : bool }]
+  in
+  test (Relative_path.v "tmp/my-dir/");
+  [%expect
+    {|
+    (((path  tmp/my-dir/) (is_dir_path  true))
+     ((path2 tmp/my-dir)  (is_dir_path2 false)))
+    |}];
+  test (Relative_path.v "tmp/my-file");
+  [%expect
+    {|
+    (((path  tmp/my-file) (is_dir_path  false))
+     ((path2 tmp/my-file) (is_dir_path2 false)))
+    |}];
   ()
 ;;
 

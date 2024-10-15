@@ -1,3 +1,18 @@
+## 0.2.2 (2024-10-15)
+
+### Added
+
+- Added `rem_empty_seg` to `Absolute_path` and `Relative_path`.
+- In `fpath-sexp0` export hash keys interfaces compatible with stdlib hash functors.
+
+### Changed
+
+- Rename `Fpart` to `Fsegment` to fit `Fpath` terminology.
+
+### Fixed
+
+- Fix occurrence of hard coded dir separator.
+
 ## 0.2.1 (2024-09-22)
 
 ### Changed

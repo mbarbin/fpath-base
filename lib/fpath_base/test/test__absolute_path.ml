@@ -88,11 +88,11 @@ let%expect_test "append" =
 
 let%expect_test "extend" =
   let abs = Absolute_path.v in
-  let file str = str |> Fpart.v in
+  let file str = str |> Fsegment.v in
   let test a b = print_s [%sexp (Absolute_path.extend a b : Absolute_path.t)] in
-  require_does_raise [%here] (fun () : Fpart.t -> file "a/b");
-  [%expect {| (Invalid_argument "a/b: invalid file part") |}];
-  require_does_not_raise [%here] (fun () -> ignore (file ".." : Fpart.t));
+  require_does_raise [%here] (fun () : Fsegment.t -> file "a/b");
+  [%expect {| (Invalid_argument "a/b: invalid file segment") |}];
+  require_does_not_raise [%here] (fun () -> ignore (file ".." : Fsegment.t));
   [%expect {||}];
   test (abs "/") (file "a");
   [%expect {| /a |}];
@@ -269,6 +269,31 @@ let%expect_test "to_dir_path" =
   [%expect {| / |}];
   test "/.";
   [%expect {| / |}];
+  ()
+;;
+
+let%expect_test "rem_empty_seg" =
+  let test path =
+    let is_dir_path = Absolute_path.is_dir_path path in
+    let path2 = Absolute_path.rem_empty_seg path in
+    let is_dir_path2 = Absolute_path.is_dir_path path2 in
+    print_s
+      [%sexp
+        { path : Absolute_path.t; is_dir_path : bool }
+        , { path2 : Absolute_path.t; is_dir_path2 : bool }]
+  in
+  test (Absolute_path.v "/tmp/my-dir/");
+  [%expect
+    {|
+    (((path  /tmp/my-dir/) (is_dir_path  true))
+     ((path2 /tmp/my-dir)  (is_dir_path2 false)))
+    |}];
+  test (Absolute_path.v "/tmp/my-file");
+  [%expect
+    {|
+    (((path  /tmp/my-file) (is_dir_path  false))
+     ((path2 /tmp/my-file) (is_dir_path2 false)))
+    |}];
   ()
 ;;
 

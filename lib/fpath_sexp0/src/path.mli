@@ -11,6 +11,8 @@ module Absolute_path : sig
   val sexp_of_t : t -> Sexplib0.Sexp.t
   val compare : t -> t -> int
   val equal : t -> t -> bool
+  val hash : t -> int
+  val seeded_hash : int -> t -> int
   val to_fpath : t -> Fpath.t
   val to_string : t -> string
 
@@ -28,12 +30,13 @@ module Absolute_path : sig
   val root : t
 
   val append : t -> relative_path -> t
-  val extend : t -> Fpart.t -> t
+  val extend : t -> Fsegment.t -> t
   val parent : t -> t option
   val chop_prefix : t -> prefix:t -> relative_path option
   val chop_suffix : t -> suffix:relative_path -> t option
   val is_dir_path : t -> bool
   val to_dir_path : t -> t
+  val rem_empty_seg : t -> t
 
   (** Converts a Path.t to an Absolute_path.t:
       - If the path is already absolute, that's the answer.
@@ -47,6 +50,8 @@ module Relative_path : sig
   val sexp_of_t : t -> Sexplib0.Sexp.t
   val compare : t -> t -> int
   val equal : t -> t -> bool
+  val hash : t -> int
+  val seeded_hash : int -> t -> int
   val to_fpath : t -> Fpath.t
   val to_string : t -> string
 
@@ -66,13 +71,14 @@ module Relative_path : sig
   val empty : t
 
   val append : t -> t -> t
-  val extend : t -> Fpart.t -> t
+  val extend : t -> Fsegment.t -> t
   val parent : t -> t option
-  val of_list : Fpart.t list -> t
+  val of_list : Fsegment.t list -> t
   val chop_prefix : t -> prefix:t -> t option
   val chop_suffix : t -> suffix:t -> t option
   val is_dir_path : t -> bool
   val to_dir_path : t -> t
+  val rem_empty_seg : t -> t
 end
 
 (** This module is re-exported as part of the [Fpath] module. For example:
