@@ -39,5 +39,6 @@ module Fsegment : sig
 end
 
 (** This alias is kept for backward compatibility for now but will soon be
-    deprecated. Please upgrade code to [Fsegment]. *)
+    removed. Please upgrade code to [Fsegment]. *)
 module Fpart = Fsegment
+[@@ocaml.deprecated "[since 2024-10] Use Fsegment instead"]

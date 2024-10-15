@@ -105,11 +105,11 @@ let%expect_test "append" =
 
 let%expect_test "extend" =
   let rel = Relative_path.v in
-  let file str = str |> Fpart.v in
+  let file str = str |> Fsegment.v in
   let test a b = print_s [%sexp (Relative_path.extend a b : Relative_path.t)] in
-  require_does_raise [%here] (fun () : Fpart.t -> file "a/b");
+  require_does_raise [%here] (fun () : Fsegment.t -> file "a/b");
   [%expect {| (Invalid_argument "a/b: invalid file segment") |}];
-  require_does_not_raise [%here] (fun () -> ignore (file ".." : Fpart.t));
+  require_does_not_raise [%here] (fun () -> ignore (file ".." : Fsegment.t));
   [%expect {| |}];
   test Relative_path.empty (file "a");
   [%expect {| a |}];
@@ -155,7 +155,7 @@ let%expect_test "parent" =
 
 let%expect_test "of_list" =
   let test files =
-    let result = Relative_path.of_list (List.map files ~f:Fpart.v) in
+    let result = Relative_path.of_list (List.map files ~f:Fsegment.v) in
     print_s [%sexp (result : Relative_path.t)]
   in
   test [];
