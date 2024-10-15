@@ -1,3 +1,17 @@
+## 0.3.0 (unreleased)
+
+### Added
+
+### Changed
+
+### Deprecated
+
+- Deprecate `Fpart` - renamed `Fsegment` and available since `0.2.2`.
+
+### Fixed
+
+### Removed
+
 ## 0.2.2 (2024-10-15)
 
 ### Added
