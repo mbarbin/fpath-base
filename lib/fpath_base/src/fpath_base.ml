@@ -3,7 +3,6 @@ module Fpath = struct
   include T
   include Comparable.Make (T)
 
-  let hash t = String.hash (T.to_string t)
   let hash_fold_t state t = String.hash_fold_t state (T.to_string t)
 end
 
@@ -12,7 +11,6 @@ module Absolute_path = struct
   include T
   include Comparable.Make (T)
 
-  let hash t = String.hash (T.to_string t)
   let hash_fold_t state t = String.hash_fold_t state (T.to_string t)
 end
 
@@ -21,7 +19,6 @@ module Relative_path = struct
   include T
   include Comparable.Make (T)
 
-  let hash t = String.hash (T.to_string t)
   let hash_fold_t state t = String.hash_fold_t state (T.to_string t)
 end
 
@@ -30,7 +27,6 @@ module Fsegment = struct
   include T
   include Comparable.Make (T)
 
-  let hash t = String.hash (T.to_string t)
   let hash_fold_t state t = String.hash_fold_t state (T.to_string t)
 end
 

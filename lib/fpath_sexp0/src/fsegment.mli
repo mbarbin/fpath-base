@@ -16,6 +16,8 @@ type t
 val sexp_of_t : t -> Sexplib0.Sexp.t
 val compare : t -> t -> int
 val equal : t -> t -> bool
+val hash : t -> int
+val seeded_hash : int -> t -> int
 val of_string : string -> (t, [ `Msg of string ]) Result.t
 val to_string : t -> string
 val v : string -> t

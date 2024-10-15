@@ -11,6 +11,8 @@ module Absolute_path : sig
   val sexp_of_t : t -> Sexplib0.Sexp.t
   val compare : t -> t -> int
   val equal : t -> t -> bool
+  val hash : t -> int
+  val seeded_hash : int -> t -> int
   val to_fpath : t -> Fpath.t
   val to_string : t -> string
 
@@ -47,6 +49,8 @@ module Relative_path : sig
   val sexp_of_t : t -> Sexplib0.Sexp.t
   val compare : t -> t -> int
   val equal : t -> t -> bool
+  val hash : t -> int
+  val seeded_hash : int -> t -> int
   val to_fpath : t -> Fpath.t
   val to_string : t -> string
 
