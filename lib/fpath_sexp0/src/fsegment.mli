@@ -3,8 +3,8 @@
     A [Fpart.t] represents a segment of a file path, i.e., the parts of the
     path that are separated by the directory separator character.
 
-    For example, in the file path ["/home/user/documents/file.txt"],
-    the parts are [["home" ; "user" ; "documents" ; "file.txt"]].
+    For example, in the file path ["/home/user/documents/file.txt"], the
+    segments are [["home" ; "user" ; "documents" ; "file.txt"]].
 
     A valid file part cannot contain ['/'] or null characters.
 

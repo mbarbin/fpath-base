@@ -33,7 +33,7 @@
 (package
  (name fpath-sexp0)
  (synopsis
-  "Adds Fpath.sexp_of_t and defines 3 new modules: Fpart, Absolute_path and Relative_path")
+  "Adds Fpath.sexp_of_t and defines 3 new modules: Fsegment, Absolute_path and Relative_path")
  (depends
   (ocaml
    (>= 5.2))

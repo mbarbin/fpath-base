@@ -28,12 +28,16 @@ module Relative_path : sig
   val hash_fold_t : Hash.state -> t -> Hash.state
 end
 
-module Fpart : sig
-  type t = Fpath_sexp0.Fpart.t
+module Fsegment : sig
+  type t = Fpath_sexp0.Fsegment.t
 
-  include module type of Fpath_sexp0.Fpart with type t := t
+  include module type of Fpath_sexp0.Fsegment with type t := t
   include Comparable.S with type t := t
 
   val hash : t -> int
   val hash_fold_t : Hash.state -> t -> Hash.state
 end
+
+(** This alias is kept for backward compatibility for now but will soon be
+    deprecated. Please upgrade code to [Fsegment]. *)
+module Fpart = Fsegment

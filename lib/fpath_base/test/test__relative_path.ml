@@ -108,7 +108,7 @@ let%expect_test "extend" =
   let file str = str |> Fpart.v in
   let test a b = print_s [%sexp (Relative_path.extend a b : Relative_path.t)] in
   require_does_raise [%here] (fun () : Fpart.t -> file "a/b");
-  [%expect {| (Invalid_argument "a/b: invalid file part") |}];
+  [%expect {| (Invalid_argument "a/b: invalid file segment") |}];
   require_does_not_raise [%here] (fun () -> ignore (file ".." : Fpart.t));
   [%expect {| |}];
   test Relative_path.empty (file "a");

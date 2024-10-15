@@ -8,4 +8,8 @@ end
 
 module Absolute_path = Path.Absolute_path
 module Relative_path = Path.Relative_path
-module Fpart = Fpart
+module Fsegment = Fsegment
+
+(** This alias is kept for backward compatibility for now but will soon be
+    deprecated. Please upgrade code to [Fsegment]. *)
+module Fpart = Fsegment

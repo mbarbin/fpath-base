@@ -7,7 +7,7 @@ This repository defines 2 OCaml packages named `fpath-sexplib0` and `fpath-base`
 
 ## fpath-sexplib0
 
-This package only depends on `fpath` and `sexplib0`. It defines a single module, `Fpath_sexplib0`, which is designed to be opened to shadow the `Fpath` module. This introduces three new modules to the scope: `Fpart`, `Absolute_path` and `Relative_path`.
+This package only depends on `fpath` and `sexplib0`. It defines a single module, `Fpath_sexplib0`, which is designed to be opened to shadow the `Fpath` module. This introduces three new modules to the scope: `Fsegment`, `Absolute_path` and `Relative_path`.
 
 **Fpath** is shadowed and retains all its original functionality, with the addition of a sexp serializer:
 
@@ -27,7 +27,7 @@ val classify
   -> [ `Absolute of Absolute_path.t | `Relative of Relative_path.t ]
 ```
 
-**Fpart** is a helper module for representing and manipulating the elements that constitute the '/' separated segments of a path.
+**Fsegment** is a helper module for representing and manipulating the elements that constitute the '/' separated segments of a path.
 
 **Absolute_path** and **Relative_path** are helper modules that distinguish between classes of paths in the type system, enhancing type safety for applications manipulating paths. Both types are defined as `private Fpath.t`, making it easy to cast and convert paths.
 
@@ -35,7 +35,7 @@ val classify
 
 This package further extends `fpath-sexplib0` and adds a dependency on `base`. It is designed to be compatible with `Base`-style containers such as `Map`, `Set`, `Hashtbl`, `Hash_set`.
 
-This package defines a single module, `Fpath_base`, which is designed to be opened to shadow and further extend the four modules from `fpath-sexplib0`: `Fpath`, `Fpart`, `Absolute_path` and `Relative_path`. It exports `hashable` and `comparable` interfaces.
+This package defines a single module, `Fpath_base`, which is designed to be opened to shadow and further extend the four modules from `fpath-sexplib0`: `Fpath`, `Fsegment`, `Absolute_path` and `Relative_path`. It exports `hashable` and `comparable` interfaces.
 
 ```ocaml
 module Fpath : sig

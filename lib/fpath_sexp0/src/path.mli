@@ -28,7 +28,7 @@ module Absolute_path : sig
   val root : t
 
   val append : t -> relative_path -> t
-  val extend : t -> Fpart.t -> t
+  val extend : t -> Fsegment.t -> t
   val parent : t -> t option
   val chop_prefix : t -> prefix:t -> relative_path option
   val chop_suffix : t -> suffix:relative_path -> t option
@@ -66,9 +66,9 @@ module Relative_path : sig
   val empty : t
 
   val append : t -> t -> t
-  val extend : t -> Fpart.t -> t
+  val extend : t -> Fsegment.t -> t
   val parent : t -> t option
-  val of_list : Fpart.t list -> t
+  val of_list : Fsegment.t list -> t
   val chop_prefix : t -> prefix:t -> t option
   val chop_suffix : t -> suffix:t -> t option
   val is_dir_path : t -> bool

@@ -2,7 +2,7 @@ type absolute_path = Fpath.t
 type relative_path = Fpath.t
 
 let append a r = Fpath.(a // r) |> Fpath.normalize
-let extend t f = Fpath.(t / Fpart.to_string f) |> Fpath.normalize
+let extend t f = Fpath.(t / Fsegment.to_string f) |> Fpath.normalize
 
 let parent t =
   let t' = Fpath.normalize t |> Fpath.parent in
