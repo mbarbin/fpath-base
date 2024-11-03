@@ -30,6 +30,7 @@ jobs:
         ocaml-compiler:
           - 5.3.x
           - 5.2.x
+          - 4.14.x
         exclude:
           # We exclude the combination already tested in the 'ci' workflow.
           - os: ubuntu-latest
@@ -55,7 +56,7 @@ jobs:
       # the development workflow and as part of the main CI job. These are the
       # tests that are checked for every combination of os and ocaml-compiler.
       - name: Install dependencies
-        run: opam install ./fpath-base.opam ./fpath-base-tests.opam --deps-only --with-test
+        run: opam install ./fpath-sexp0.opam ./fpath-base.opam ./fpath-base-tests.opam --deps-only --with-test
 
       - name: Build & Run tests
-        run: opam exec -- dune build @all @runtest -p fpath-base,fpath-base-tests
+        run: opam exec -- dune build @all @runtest -p fpath-sexp0,fpath-base,fpath-base-tests
