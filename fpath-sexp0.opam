@@ -10,9 +10,9 @@ doc: "https://mbarbin.github.io/fpath-base/"
 bug-reports: "https://github.com/mbarbin/fpath-base/issues"
 depends: [
   "dune" {>= "3.17"}
-  "ocaml" {>= "5.2"}
+  "ocaml" {>= "4.14"}
   "fpath" {>= "0.7.3"}
-  "sexplib0" {>= "v0.17" & < "v0.18"}
+  "sexplib0" {>= "v0.16" & < "v0.18"}
   "odoc" {with-doc}
 ]
 build: [
