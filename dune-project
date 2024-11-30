@@ -15,6 +15,8 @@
 
 (documentation "https://mbarbin.github.io/fpath-base/")
 
+(implicit_transitive_deps false)
+
 (package
  (name fpath-base)
  (synopsis "Adds a few functions to Fpath to use alongside Base")
