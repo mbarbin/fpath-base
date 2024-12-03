@@ -24,7 +24,8 @@ let%expect_test "hard coded" =
     ~f:(fun (name, t) ->
       print_endline (Printf.sprintf "%10s: " name ^ Fsegment.to_string t))
     Fsegment.[ "dot", dot; "dot_dot", dot_dot; "dot_git", dot_git; "dot_hg", dot_hg ];
-  [%expect {|
+  [%expect
+    {|
         dot: .
     dot_dot: ..
     dot_git: .git
@@ -53,7 +54,8 @@ let%expect_test "hash-fold-t" =
   let t = Hashtbl.create (module Pair) in
   Hashtbl.set t ~key:{ a = Fsegment.v "a"; b = Fsegment.v "b" } ~data:42;
   print_s [%sexp (t : int Hashtbl.M(Pair).t)];
-  [%expect {|
+  [%expect
+    {|
     ((
       ((a a)
        (b b))

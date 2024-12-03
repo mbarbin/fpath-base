@@ -24,8 +24,8 @@ let%expect_test "compare" =
     print_s
       [%sexp
         (a : Fpath_pair.t)
-        , (Fpath_pair.compare a b |> Ordering.of_int : Ordering.t)
-        , (b : Fpath_pair.t)]
+      , (Fpath_pair.compare a b |> Ordering.of_int : Ordering.t)
+      , (b : Fpath_pair.t)]
   in
   test
     { a = Fpath.v "file-a"; b = Fpath.v "file-b" }
@@ -73,7 +73,8 @@ let%expect_test "hashtbl2" =
   let t = Hashtbl.create (module Fpath_pair) in
   Hashtbl.set t ~key:{ Fpath_pair.a = Fpath.v "file-a"; b = Fpath.v "file-b" } ~data:42;
   print_s [%sexp (t : int Hashtbl.M(Fpath_pair).t)];
-  [%expect {|
+  [%expect
+    {|
     ((
       ((a file-a)
        (b file-b))
@@ -132,24 +133,24 @@ let%expect_test "chop_prefix and chop_suffix" =
             print_s
               [%sexp
                 (a : Absolute_path.t)
-                , (b : Absolute_path.t)
-                , "==> chop_prefix"
-                , (Absolute_path.chop_prefix b ~prefix:a : Relative_path.t option)]
+              , (b : Absolute_path.t)
+              , "==> chop_prefix"
+              , (Absolute_path.chop_prefix b ~prefix:a : Relative_path.t option)]
           | `Relative _, `Absolute _ -> assert false
           | `Absolute a, `Relative b ->
             print_s
               [%sexp
                 (a : Absolute_path.t)
-                , (b : Relative_path.t)
-                , "==> chop_suffix"
-                , (Absolute_path.chop_suffix a ~suffix:b : Absolute_path.t option)]
+              , (b : Relative_path.t)
+              , "==> chop_suffix"
+              , (Absolute_path.chop_suffix a ~suffix:b : Absolute_path.t option)]
           | `Relative a, `Relative b ->
             print_s
               [%sexp
                 (a : Relative_path.t)
-                , (b : Relative_path.t)
-                , "==> chop_prefix"
-                , (Relative_path.chop_prefix b ~prefix:a : Relative_path.t option)]))
+              , (b : Relative_path.t)
+              , "==> chop_prefix"
+              , (Relative_path.chop_prefix b ~prefix:a : Relative_path.t option)]))
     [ "/", "."
     ; "/", "a"
     ; "/a", "a"

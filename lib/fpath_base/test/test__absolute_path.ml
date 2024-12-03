@@ -33,19 +33,23 @@ let%expect_test "of_fpath" =
       else print_s [%sexp "does not roundtrip", { f : Fpath.t; f' : Fpath.t }])
   in
   test_fpath (Fpath.v "/foo/bar");
-  [%expect {|
+  [%expect
+    {|
     /foo/bar
     ("does roundtrip" ((f /foo/bar))) |}];
   test_fpath (Fpath.v "/foo/bar/");
-  [%expect {|
+  [%expect
+    {|
       /foo/bar/
       ("does roundtrip" ((f /foo/bar/))) |}];
   test_fpath (Fpath.v "/");
-  [%expect {|
+  [%expect
+    {|
     /
     ("does roundtrip" ((f /))) |}];
   test_fpath (Fpath.v "/.");
-  [%expect {|
+  [%expect
+    {|
       /
       ("does not roundtrip" (
         (f  /.)
@@ -280,7 +284,7 @@ let%expect_test "rem_empty_seg" =
     print_s
       [%sexp
         { path : Absolute_path.t; is_dir_path : bool }
-        , { path2 : Absolute_path.t; is_dir_path2 : bool }]
+      , { path2 : Absolute_path.t; is_dir_path2 : bool }]
   in
   test (Absolute_path.v "/tmp/my-dir/");
   [%expect
@@ -338,7 +342,8 @@ let%expect_test "hash-fold-t" =
     ~key:{ a = Absolute_path.v "/tmp/a"; b = Absolute_path.v "/tmp/a" }
     ~data:42;
   print_s [%sexp (t : int Hashtbl.M(Pair).t)];
-  [%expect {|
+  [%expect
+    {|
     ((
       ((a /tmp/a)
        (b /tmp/a))
