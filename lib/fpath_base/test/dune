@@ -17,7 +17,8 @@
   base
   expect_test_helpers_core.expect_test_helpers_base
   fpath
-  fpath_base)
+  fpath_base
+  fpath_sexp0)
  (inline_tests)
  (instrumentation
   (backend bisect_ppx))
