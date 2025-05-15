@@ -2,4 +2,4 @@
 
 [@@@ocaml.alert "-deprecated"]
 
-let _ = Fpart.v "hello"
+let (_ : Fsegment.t) = Fpart.v "hello"
