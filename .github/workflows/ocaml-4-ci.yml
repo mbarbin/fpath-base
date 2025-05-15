@@ -21,8 +21,6 @@ jobs:
           - ubuntu-latest
         ocaml-compiler:
           - 4.14.x
-        exclude:
-          # We exclude the combination already tested in the 'ci' workflow.
 
     runs-on: ${{ matrix.os }}
 
