@@ -1,16 +1,12 @@
-## 0.3.0 (unreleased)
+## 0.3.0 (2025-05-15)
 
 ### Added
 
-### Changed
+- Add support for OCaml-4.14 to `fpath-sexp0` (#14, @mbarbin).
 
 ### Deprecated
 
 - Deprecate `Fpart` - renamed `Fsegment` and available since `0.2.2`.
-
-### Fixed
-
-### Removed
 
 ## 0.2.2 (2024-10-15)
 
