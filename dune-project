@@ -38,12 +38,12 @@
   "Adds Fpath.sexp_of_t and defines 3 new modules: Fsegment, Absolute_path and Relative_path")
  (depends
   (ocaml
-   (>= 5.2))
+   (>= 4.14))
   (fpath
    (>= 0.7.3))
   (sexplib0
    (and
-    (>= v0.17)
+    (>= v0.16)
     (< v0.18)))))
 
 (package
