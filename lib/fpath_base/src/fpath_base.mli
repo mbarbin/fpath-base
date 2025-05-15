@@ -44,4 +44,4 @@ module Fpart = Fsegment
 [@@ocaml.deprecated
   "[since 2024-10] Use [Fsegment] instead. Hint: Run [ocamlmig migrate \
    -module-migration]."]
-[@@migrate { repl = Rel.Fsegment }]
+[@@migrate { repl = Fsegment }]
