@@ -1,3 +1,5 @@
+open! Stdlib_compat
+
 type t = string
 
 let compare = String.compare
