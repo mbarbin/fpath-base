@@ -2,12 +2,13 @@
 
 ### Changed
 
-- Conditional set implicit transitive deps in CI depending on the compiler version (#15, @mbarbin).
+- Conditional set implicit transitive deps in CI depending on the compiler version (#16, @mbarbin).
 
 ## 0.3.0 (2025-05-15)
 
 ### Added
 
+- Add ocamlmig annotations for deprecated parts (#15, @mbarbin).
 - Add support for OCaml-4.14 to `fpath-sexp0` (#14, @mbarbin).
 
 ### Deprecated
