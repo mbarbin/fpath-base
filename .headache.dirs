@@ -1,0 +1,6 @@
+# List of directories for headache.sh
+# Add new directories below. Lines starting with '#' are ignored.
+lib/fpath_base/src
+lib/fpath_base/test
+lib/fpath_sexp0/src
+lib/fpath_sexp0/test
