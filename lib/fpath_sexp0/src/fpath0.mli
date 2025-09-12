@@ -1,3 +1,9 @@
+(*_********************************************************************************)
+(*_  fpath-base: Extending [Fpath] to use alongside [Sexplib0] and/or [Base]      *)
+(*_  SPDX-FileCopyrightText: 2023-2025 Mathieu Barbin <mathieu.barbin@gmail.com>  *)
+(*_  SPDX-License-Identifier: MIT                                                 *)
+(*_********************************************************************************)
+
 (** Adding to sexp serialization to [Fpath]. *)
 
 type t = Fpath.t

@@ -1,3 +1,9 @@
+(*********************************************************************************)
+(*  fpath-base: Extending [Fpath] to use alongside [Sexplib0] and/or [Base]      *)
+(*  SPDX-FileCopyrightText: 2023-2025 Mathieu Barbin <mathieu.barbin@gmail.com>  *)
+(*  SPDX-License-Identifier: MIT                                                 *)
+(*********************************************************************************)
+
 let%expect_test "hashtbl" =
   let t = Hashtbl.create (module Fpath) in
   Hashtbl.set t ~key:(Fpath.v "my-file") ~data:42;
