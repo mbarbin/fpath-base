@@ -10,9 +10,9 @@
   -open
   Base
   -open
-  Expect_test_helpers_base
+  Fpath_sexp0
   -open
-  Fpath_sexp0)
+  Expect_test_helpers_base)
  (libraries
   base
   expect_test_helpers_core.expect_test_helpers_base
