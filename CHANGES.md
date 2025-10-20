@@ -1,12 +1,12 @@
-## 0.4.0 (unreleased)
+## 0.4.0 (2025-10-20)
 
 ### Added
 
-- Document handling of escaping relative paths (#PR, @mbarbin).
+- Document handling of escaping relative paths (#20, @mbarbin).
 
 ### Changed
 
-- `Relative_path.t` now rejects paths that escape above their starting point (#PR, @mbarbin).
+- `Relative_path.t` now rejects paths that escape above their starting point (#20, @mbarbin).
 
 ## 0.3.1 (2025-05-26)
 
