@@ -15,15 +15,33 @@ let%expect_test "of_string" =
   test ".";
   [%expect {| (Ok ./) |}];
   test "/a";
-  [%expect {| (Error (Msg "\"/a\": not a relative path")) |}];
+  [%expect {| (Error (Msg "\"/a\" is not a relative path")) |}];
+  test "/a/../..";
+  [%expect {| (Error (Msg "\"/a/../..\" is not a relative path")) |}];
   test "a/b/../..";
   [%expect {| (Ok ./) |}];
+  (* Paths that escape upward are rejected. *)
+  test "..";
+  [%expect {| (Error (Msg "path \"..\" escapes above starting point")) |}];
+  test "../a";
+  [%expect {| (Error (Msg "path \"../a\" escapes above starting point")) |}];
+  test "a/../..";
+  [%expect {| (Error (Msg "path \"a/../..\" escapes above starting point")) |}];
   ()
 ;;
 
 let%expect_test "v" =
   require_does_raise [%here] (fun () -> Relative_path.v "");
-  [%expect {| (Invalid_argument "\"\": invalid path") |}];
+  [%expect {| (Invalid_argument "Relative_path.v: \"\": invalid path") |}];
+  require_does_raise [%here] (fun () -> Relative_path.v "..");
+  [%expect
+    {| (Invalid_argument "Relative_path.v: path \"..\" escapes above starting point") |}];
+  require_does_raise [%here] (fun () -> Relative_path.v "../a");
+  [%expect
+    {|
+    (Invalid_argument
+     "Relative_path.v: path \"../a\" escapes above starting point")
+    |}];
   ()
 ;;
 
@@ -62,6 +80,14 @@ let%expect_test "of_fpath" =
       ("does roundtrip" ((f ./))) |}];
   test_fpath (Fpath.v "/an/absolute/path");
   [%expect {| "not a relative path" |}];
+  test_fpath (Fpath.v "/an/escaping/absolute/path/../../../../../..");
+  [%expect {| "not a relative path" |}];
+  require_does_raise [%here] (fun () -> test_fpath (Fpath.v "an/../../escaping/path"));
+  [%expect
+    {|
+    (Invalid_argument
+     "Relative_path.of_fpath: path \"an/../../escaping/path\" escapes above starting point")
+    |}];
   ()
 ;;
 
@@ -98,18 +124,6 @@ let%expect_test "append" =
   [%expect {| a/b/c |}];
   test (rel "./a/b/../c/.") (rel "d/e");
   [%expect {| a/c/d/e |}];
-  test (rel "./../b/d/../c/.") (rel "e/f");
-  [%expect {| ../b/c/e/f |}];
-  test (rel "./../../../b/d/../c/.") (rel "f/g");
-  [%expect {| ../../../b/c/f/g |}];
-  test (rel "x/y/z") (rel "../../a/b/c");
-  [%expect {| x/a/b/c |}];
-  test (rel "a/b/c") (rel "../../../x/y/z");
-  [%expect {| x/y/z |}];
-  test (rel "a/b/c") (rel "../../../../x/y/z");
-  [%expect {| ../x/y/z |}];
-  test (rel "a/b/c") (rel "../../../../../../x/y/z");
-  [%expect {| ../../../x/y/z |}];
   ()
 ;;
 
@@ -118,7 +132,7 @@ let%expect_test "extend" =
   let file str = str |> Fsegment.v in
   let test a b = print_s [%sexp (Relative_path.extend a b : Relative_path.t)] in
   require_does_raise [%here] (fun () : Fsegment.t -> file "a/b");
-  [%expect {| (Invalid_argument "a/b: invalid file segment") |}];
+  [%expect {| (Invalid_argument "Fsegment.v: invalid file segment \"a/b\"") |}];
   require_does_not_raise [%here] (fun () -> ignore (file ".." : Fsegment.t));
   [%expect {| |}];
   test Relative_path.empty (file "a");
@@ -139,10 +153,22 @@ let%expect_test "extend" =
   [%expect {| a/b/c |}];
   test (rel "a/b/") (file "c");
   [%expect {| a/b/c |}];
+  test (rel "a/b/") (file "..");
+  [%expect {| a/ |}];
   test (rel "a/b") (file "..");
   [%expect {| a/ |}];
   test (rel "a/bar/foo") (file "..");
   [%expect {| a/bar/ |}];
+  test (rel "a/") (file "..");
+  [%expect {| ./ |}];
+  test (rel "a") (file "..");
+  [%expect {| ./ |}];
+  require_does_raise [%here] (fun () -> test (rel "./") (file ".."));
+  [%expect
+    {|
+    (Invalid_argument
+     "Relative_path.extend: path \"./..\" escapes above starting point")
+    |}];
   ()
 ;;
 
@@ -158,8 +184,12 @@ let%expect_test "parent" =
   [%expect {| (foo/) |}];
   test (rel "foo");
   [%expect {| (./) |}];
+  (* Verify that parent of empty returns [None]. *)
   test Relative_path.empty;
-  [%expect {| (./../) |}];
+  [%expect {| () |}];
+  (* Be specific about the expectations here. *)
+  require [%here] (Option.is_none (Relative_path.parent Relative_path.empty));
+  [%expect {||}];
   ()
 ;;
 
@@ -174,8 +204,18 @@ let%expect_test "of_list" =
   [%expect {| a |}];
   test [ "." ];
   [%expect {| ./ |}];
-  test [ ".." ];
-  [%expect {| ../ |}];
+  require_does_raise [%here] (fun () -> test [ ".." ]);
+  [%expect
+    {|
+    (Invalid_argument
+     "Relative_path.extend: path \"./..\" escapes above starting point")
+    |}];
+  require_does_raise [%here] (fun () -> test [ "a"; ".."; ".." ]);
+  [%expect
+    {|
+    (Invalid_argument
+     "Relative_path.extend: path \"./..\" escapes above starting point")
+    |}];
   test [ "a"; ".." ];
   [%expect {| ./ |}];
   test [ "a"; "." ];
@@ -184,6 +224,13 @@ let%expect_test "of_list" =
   [%expect {| a/c |}];
   test [ "a"; "b"; "c"; "d" ];
   [%expect {| a/b/c/d |}];
+  (* Even if we would "come back" later, we fail at the intermediate escaping step. *)
+  require_does_raise [%here] (fun () -> test [ "a"; ".."; ".."; "b"; "c" ]);
+  [%expect
+    {|
+    (Invalid_argument
+     "Relative_path.extend: path \"./..\" escapes above starting point")
+    |}];
   ()
 ;;
 
@@ -201,7 +248,29 @@ let%expect_test "chop_prefix" =
   [%expect {| (bar) |}];
   test (rel "foo/") (rel "foo/bar/");
   [%expect {| (bar/) |}];
+  test (rel "foo/") (rel "foo/");
+  [%expect {| (./) |}];
+  test (rel "foo") (rel "foo/");
+  [%expect {| (./) |}];
+  test (rel "foo") (rel "foo");
+  [%expect {| (./) |}];
   test (rel "foo/") (rel "foo");
+  [%expect {| () |}];
+  test (rel "foo/.") (rel "foo/");
+  [%expect {| (./) |}];
+  test (rel "foo/.") (rel "foo");
+  [%expect {| () |}];
+  test (rel "foo/") (rel "foo/.");
+  [%expect {| (./) |}];
+  test (rel "foo") (rel "foo/.");
+  [%expect {| (./) |}];
+  test (rel "foo/bar/") (rel "foo/bar/");
+  [%expect {| (./) |}];
+  test (rel "foo/bar") (rel "foo/bar/");
+  [%expect {| (./) |}];
+  test (rel "foo/bar") (rel "foo/bar");
+  [%expect {| (./) |}];
+  test (rel "foo/bar/") (rel "foo/bar");
   [%expect {| () |}];
   test (rel "foo") (rel "foo/bar/baz");
   [%expect {| (bar/baz) |}];
@@ -220,9 +289,32 @@ let%expect_test "chop_prefix" =
   [%expect {| () |}];
   test (rel "foo/bar") (rel "foo/sna/../bar/baz");
   [%expect {| (baz) |}];
-  (* Beware of string prefix vs path prefix *)
+  (* Beware of string prefix vs path prefix. *)
   test (rel "foo/bar") (rel "foo/bar-baz");
   [%expect {| () |}];
+  (* Test that empty prefix returns the input unchanged *)
+  test Relative_path.empty (rel "foo/bar");
+  [%expect {| (foo/bar) |}];
+  test Relative_path.empty Relative_path.empty;
+  [%expect {| (./) |}];
+  (* Test directory path behavior: trailing '/' matters for matching. *)
+  test (rel "foo/bar/") (rel "foo/bar/baz");
+  [%expect {| (baz) |}];
+  test (rel "foo/bar") (rel "foo/bar/baz");
+  [%expect {| (baz) |}];
+  test (rel "foo/bar/") (rel "foo/bar");
+  [%expect {| () |}];
+  test (rel "foo/bar") (rel "foo/bar/");
+  [%expect {| (./) |}];
+  (* More complex directory prefix scenarios. *)
+  test (rel "a/b/c/") (rel "a/b/c/d/e");
+  [%expect {| (d/e) |}];
+  test (rel "a/b/c") (rel "a/b/c/d/e");
+  [%expect {| (d/e) |}];
+  test (rel "a/b/c/") (rel "a/b/c/d/");
+  [%expect {| (d/) |}];
+  test (rel "a/b/c") (rel "a/b/c/d/");
+  [%expect {| (d/) |}];
   ()
 ;;
 
@@ -233,19 +325,20 @@ let%expect_test "chop_suffix" =
     print_s [%sexp (result : Relative_path.t option)]
   in
   test (rel "foo/bar") (rel "bar");
-  [%expect {| (foo) |}];
+  [%expect {| (foo/) |}];
   test (rel "foo/bar") (rel "bar/");
   [%expect {| () |}];
   test (rel "foo/bar/") (rel "bar");
   [%expect {| () |}];
   test (rel "foo/bar/") (rel "bar/");
-  [%expect {| (foo) |}];
+  [%expect {| (foo/) |}];
+  (* Verify that empty suffix returns the input unchanged. *)
   test (rel "foo/bar") Relative_path.empty;
-  [%expect {| () |}];
+  [%expect {| (foo/bar) |}];
   test (rel "foo/bar/") Relative_path.empty;
-  [%expect {| () |}];
+  [%expect {| (foo/bar/) |}];
   test (rel "foo/bar/.") Relative_path.empty;
-  [%expect {| () |}];
+  [%expect {| (foo/bar/) |}];
   test (rel "bar") (rel "foo/bar");
   [%expect {| () |}];
   test (rel "foo/bar") (rel "foo/bar");
@@ -253,18 +346,40 @@ let%expect_test "chop_suffix" =
   test (rel "foo/bar") (rel "baz");
   [%expect {| () |}];
   test (rel "foo/bar/baz") (rel "bar/baz");
-  [%expect {| (foo) |}];
+  [%expect {| (foo/) |}];
   test (rel "foo/bar/baz") (rel "baz/qux");
   [%expect {| () |}];
   test (rel "foo/bar/baz") Relative_path.empty;
-  [%expect {| () |}];
-  test (rel "foo/bar/baz") (rel "..");
-  [%expect {| () |}];
+  [%expect {| (foo/bar/baz) |}];
   test (rel "foo/bar/baz") (rel "foo/../baz");
-  [%expect {| (foo/bar) |}];
-  (* Beware of string suffix vs path suffix *)
+  [%expect {| (foo/bar/) |}];
+  (* Beware of string suffix vs path suffix. *)
   test (rel "foo/bar-baz") (rel "-baz");
   [%expect {| () |}];
+  test Relative_path.empty Relative_path.empty;
+  [%expect {| (./) |}];
+  (* Test directory path behavior: trailing '/' matters for matching. *)
+  test (rel "foo/bar") (rel "bar");
+  [%expect {| (foo/) |}];
+  test (rel "foo/bar/") (rel "bar/");
+  [%expect {| (foo/) |}];
+  test (rel "foo/bar/") (rel "bar");
+  [%expect {| () |}];
+  test (rel "foo/bar") (rel "bar/");
+  [%expect {| () |}];
+  (* More complex directory suffix scenarios. *)
+  test (rel "a/b/c/d/e") (rel "d/e");
+  [%expect {| (a/b/c/) |}];
+  test (rel "a/b/c/d/e/") (rel "d/e/");
+  [%expect {| (a/b/c/) |}];
+  test (rel "a/b/c/d/e") (rel "d/e/");
+  [%expect {| () |}];
+  test (rel "a/b/c/d/e/") (rel "d/e");
+  [%expect {| () |}];
+  test (rel "x/y/z/") (rel "z/");
+  [%expect {| (x/y/) |}];
+  test (rel "x/y/z") (rel "z");
+  [%expect {| (x/y/) |}];
   ()
 ;;
 

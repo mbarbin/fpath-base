@@ -1,0 +1,10 @@
+(env
+ (_
+  (env-vars
+   (OCAMLRUNPARAM b=0))))
+
+(mdx
+ (package fpath-base-dev)
+ (deps
+  (package fpath-base))
+ (preludes prelude.txt))
