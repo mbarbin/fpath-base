@@ -1,3 +1,9 @@
+## 0.4.0 (unreleased)
+
+### Changed
+
+- `Relative_path.t` now rejects paths that escape above start point (#PR, @mbarbin).
+
 ## 0.3.1 (2025-05-26)
 
 ### Changed

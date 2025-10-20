@@ -9,7 +9,7 @@ let%expect_test "of_string" =
     print_s [%sexp (Fsegment.of_string str : (Fsegment.t, [ `Msg of string ]) Result.t)]
   in
   test "";
-  [%expect {| (Error (Msg ": invalid file segment")) |}];
+  [%expect {| (Error (Msg "invalid file segment \"\"")) |}];
   test "a";
   [%expect {| (Ok a) |}];
   test ".a";
@@ -17,11 +17,11 @@ let%expect_test "of_string" =
   test "..";
   [%expect {| (Ok ..) |}];
   test "/";
-  [%expect {| (Error (Msg "/: invalid file segment")) |}];
+  [%expect {| (Error (Msg "invalid file segment \"/\"")) |}];
   test "a/b";
-  [%expect {| (Error (Msg "a/b: invalid file segment")) |}];
+  [%expect {| (Error (Msg "invalid file segment \"a/b\"")) |}];
   test "a\000b";
-  [%expect {| (Error (Msg "a\000b: invalid file segment")) |}];
+  [%expect {| (Error (Msg "invalid file segment \"a\\000b\"")) |}];
   ()
 ;;
 

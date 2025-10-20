@@ -120,6 +120,16 @@ let%expect_test "classify" =
   [%expect {| (Relative ./) |}];
   test "./";
   [%expect {| (Relative ./) |}];
+  test "/a/b/../../../..";
+  [%expect {| (Absolute /) |}];
+  test "/a/b/../../../../foo/";
+  [%expect {| (Absolute /foo/) |}];
+  require_does_raise [%here] (fun () -> test "a/b/../../../..");
+  [%expect
+    {|
+    (Invalid_argument
+     "Fpath.classify: path \"a/b/../../../..\" escapes above starting point")
+    |}];
   ()
 ;;
 
@@ -182,10 +192,10 @@ let%expect_test "chop_prefix and chop_suffix" =
     ];
   [%expect
     {|
-    (/ ./ "==> chop_suffix" ())
-    (/ ./ "==> chop_suffix" ())
-    (/ ./ "==> chop_suffix" ())
-    (/ ./ "==> chop_suffix" ())
+    (/ ./ "==> chop_suffix" (/))
+    (/ ./ "==> chop_suffix" (/))
+    (/ ./ "==> chop_suffix" (/))
+    (/ ./ "==> chop_suffix" (/))
     (/ a "==> chop_suffix" ())
     (/ a "==> chop_suffix" ())
     (/ a/ "==> chop_suffix" ())
@@ -198,10 +208,10 @@ let%expect_test "chop_prefix and chop_suffix" =
     (/a/ b "==> chop_suffix" ())
     (/a b/ "==> chop_suffix" ())
     (/a/ b/ "==> chop_suffix" ())
-    (/a/b b "==> chop_suffix" (/a))
+    (/a/b b "==> chop_suffix" (/a/))
     (/a/b/ b "==> chop_suffix" ())
     (/a/b b/ "==> chop_suffix" ())
-    (/a/b/ b/ "==> chop_suffix" (/a))
+    (/a/b/ b/ "==> chop_suffix" (/a/))
     (/a/b a/b "==> chop_suffix" (/))
     (/a/b/ a/b "==> chop_suffix" ())
     (/a/b a/b/ "==> chop_suffix" ())
@@ -242,10 +252,10 @@ let%expect_test "chop_prefix and chop_suffix" =
     (./ ./ "==> chop_prefix" (./))
     (./ ./ "==> chop_prefix" (./))
     (./ ./ "==> chop_prefix" (./))
-    (./ a "==> chop_prefix" ())
-    (./ a "==> chop_prefix" ())
-    (./ a/ "==> chop_prefix" ())
-    (./ a/ "==> chop_prefix" ())
+    (./ a "==> chop_prefix" (a))
+    (./ a "==> chop_prefix" (a))
+    (./ a/ "==> chop_prefix" (a/))
+    (./ a/ "==> chop_prefix" (a/))
     (a ./ "==> chop_prefix" ())
     (a/ ./ "==> chop_prefix" ())
     (a ./ "==> chop_prefix" ())

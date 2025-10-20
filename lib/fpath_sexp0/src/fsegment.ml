@@ -29,13 +29,13 @@ let invariant t =
 let to_string t = t
 
 let of_string s =
-  if invariant s then Ok s else Error (`Msg (Printf.sprintf "%s: invalid file segment" s))
+  if invariant s then Ok s else Error (`Msg (Printf.sprintf "invalid file segment %S" s))
 ;;
 
 let v t =
   match of_string t with
   | Ok t -> t
-  | Error (`Msg s) -> invalid_arg s
+  | Error (`Msg s) -> invalid_arg ("Fsegment.v: " ^ s)
 ;;
 
 let dot = v "."
