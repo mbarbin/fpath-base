@@ -1,3 +1,9 @@
+## 0.X.X (unreleased)
+
+### Removed
+
+- Remove deprecated `Fpart` module (use `Fsegment` instead, deprecated since 0.3.0) (#PR, @mbarbin).
+
 ## 0.4.0 (2025-10-20)
 
 ### Added
