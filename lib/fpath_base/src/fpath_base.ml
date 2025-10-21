@@ -35,5 +35,3 @@ module Fsegment = struct
 
   let hash_fold_t state t = String.hash_fold_t state (T.to_string t)
 end
-
-module Fpart = Fsegment

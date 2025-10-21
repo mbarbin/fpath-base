@@ -43,11 +43,3 @@ module Fsegment : sig
   val hash : t -> int
   val hash_fold_t : Hash.state -> t -> Hash.state
 end
-
-(** This alias is kept for backward compatibility for now but will soon be
-    removed. Please upgrade code to [Fsegment]. *)
-module Fpart = Fsegment
-[@@ocaml.deprecated
-  "[since 2024-10] Use [Fsegment] instead. Hint: Run [ocamlmig migrate \
-   -module-migration]."]
-[@@migrate { repl = Fsegment }]
