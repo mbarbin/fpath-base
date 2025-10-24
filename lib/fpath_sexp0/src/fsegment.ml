@@ -18,7 +18,7 @@ let dir_sep_char = Fpath.dir_sep.[0]
 let no_dir_sep =
   if Char.equal dir_sep_char '/'
   then fun c -> not (Char.equal c '/')
-  else fun [@coverage off] c -> not (Char.equal c '/' || Char.equal c dir_sep_char)
+  else fun[@coverage off] c -> not (Char.equal c '/' || Char.equal c dir_sep_char)
 ;;
 
 let invariant t =
