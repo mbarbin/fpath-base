@@ -1,6 +1,6 @@
 # List of directories for headache.sh
 # Add new directories below. Lines starting with '#' are ignored.
-pkg/fpath-base
-pkg/fpath-sexp0
+src/fpath-base
+src/fpath-sexp0
 test/fpath-base
 test/fpath-sexp0
