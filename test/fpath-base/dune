@@ -1,6 +1,6 @@
 (library
  (name fpath_base_test)
- (public_name fpath-base-tests.fpath_base_test)
+ (package fpath-base-tests)
  (flags
   :standard
   -w
@@ -28,10 +28,8 @@
   (pps
    -unused-code-warnings=force
    ppx_compare
-   ppx_enumerate
    ppx_expect
    ppx_hash
    ppx_here
-   ppx_let
    ppx_sexp_conv
    ppx_sexp_value)))
