@@ -1,6 +1,6 @@
 (library
  (name fpath_sexp0_test)
- (public_name fpath-base-tests.fpath_sexp0_test)
+ (package fpath-base-tests)
  (flags
   :standard
   -w
