@@ -62,8 +62,6 @@
    (>= 5.2))
   (base
    (>= v0.17))
-  (base_quickcheck
-   (>= v0.17))
   (expect_test_helpers_core
    (>= v0.17))
   (fpath
@@ -74,28 +72,18 @@
    (= :version))
   (ppx_compare
    (>= v0.17))
-  (ppx_enumerate
-   (>= v0.17))
   (ppx_expect
    (>= v0.17))
   (ppx_hash
    (>= v0.17))
   (ppx_here
    (>= v0.17))
-  (ppx_let
-   (>= v0.17))
   (ppx_sexp_conv
    (>= v0.17))
   (ppx_sexp_value
    (>= v0.17))
   (ppxlib
-   (>= 0.33))
-  (re
-   (>= 1.8.0))
-  (sexp_pretty
-   (>= v0.17))
-  (stdio
-   (>= v0.17))))
+   (>= 0.33))))
 
 (package
  (name fpath-base-dev)
@@ -107,8 +95,6 @@
   (ocamlformat
    (= 0.28.1))
   (base
-   (>= v0.17))
-  (base_quickcheck
    (>= v0.17))
   (bisect_ppx
    (>= 2.8.3))
@@ -126,8 +112,6 @@
    (>= 2.4))
   (ppx_compare
    (>= v0.17))
-  (ppx_enumerate
-   (>= v0.17))
   (ppx_expect
    (>= v0.17))
   (ppx_hash
@@ -136,20 +120,12 @@
    (>= v0.17))
   (ppx_js_style
    (>= v0.17))
-  (ppx_let
-   (>= v0.17))
   (ppx_sexp_conv
    (>= v0.17))
   (ppx_sexp_value
    (>= v0.17))
   (ppxlib
    (>= 0.33))
-  (re
-   (>= 1.8.0))
-  (sexp_pretty
-   (>= v0.17))
-  (stdio
-   (>= v0.17))
   (sherlodoc
    (and
     :with-doc
