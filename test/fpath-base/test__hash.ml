@@ -33,7 +33,7 @@ let%expect_test "hash" =
   let h2 = Fpath_sexp0.Fsegment.hash seg in
   print_dyn (h1 |> Dyn.int);
   [%expect {| 437367475 |}];
-  require_equal [%here] (module Int) h1 h2;
+  require_equal (module Int) h1 h2;
   [%expect {||}];
   ()
 ;;
@@ -52,8 +52,8 @@ let%expect_test "Fsegment.seeded_hash" =
   [%expect {| 437367475 |}];
   print_dyn (f42 |> Dyn.int);
   [%expect {| 202913284 |}];
-  require_equal [%here] (module Int) s0 f0;
-  require_equal [%here] (module Int) s42 f42;
+  require_equal (module Int) s0 f0;
+  require_equal (module Int) s42 f42;
   [%expect {||}];
   ()
 ;;
@@ -72,8 +72,8 @@ let%expect_test "Fpath.seeded_hash" =
   [%expect {| 437367475 |}];
   print_dyn (f42 |> Dyn.int);
   [%expect {| 202913284 |}];
-  require_equal [%here] (module Int) s0 f0;
-  require_equal [%here] (module Int) s42 f42;
+  require_equal (module Int) s0 f0;
+  require_equal (module Int) s42 f42;
   [%expect {||}];
   ()
 ;;
@@ -94,8 +94,8 @@ let%expect_test "Relative_path.seeded_hash" =
   [%expect {| 437367475 |}];
   print_dyn (f42 |> Dyn.int);
   [%expect {| 202913284 |}];
-  require_equal [%here] (module Int) s0 f0;
-  require_equal [%here] (module Int) s42 f42;
+  require_equal (module Int) s0 f0;
+  require_equal (module Int) s42 f42;
   [%expect {||}];
   ()
 ;;
@@ -116,8 +116,8 @@ let%expect_test "Absolute_path.seeded_hash" =
   [%expect {| 152999615 |}];
   print_dyn (f42 |> Dyn.int);
   [%expect {| 524647462 |}];
-  require_equal [%here] (module Int) s0 f0;
-  require_equal [%here] (module Int) s42 f42;
+  require_equal (module Int) s0 f0;
+  require_equal (module Int) s42 f42;
   [%expect {||}];
   ()
 ;;

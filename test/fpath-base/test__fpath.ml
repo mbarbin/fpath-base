@@ -120,12 +120,9 @@ let%expect_test "classify" =
   [%expect {| Absolute "/" |}];
   test "/a/b/../../../../foo/";
   [%expect {| Absolute "/foo/" |}];
-  require_does_raise [%here] (fun () -> test "a/b/../../../..");
+  require_does_raise (fun () -> test "a/b/../../../..");
   [%expect
-    {|
-    (Invalid_argument
-     "Fpath.classify: path \"a/b/../../../..\" escapes above starting point")
-    |}];
+    {| Invalid_argument("Fpath.classify: path \"a/b/../../../..\" escapes above starting point") |}];
   ()
 ;;
 

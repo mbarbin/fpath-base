@@ -40,17 +40,14 @@ let%expect_test "of_string" =
 ;;
 
 let%expect_test "v" =
-  require_does_raise [%here] (fun () -> Relative_path.v "");
-  [%expect {| (Invalid_argument "Relative_path.v: \"\": invalid path") |}];
-  require_does_raise [%here] (fun () -> Relative_path.v "..");
+  require_does_raise (fun () -> Relative_path.v "");
+  [%expect {| Invalid_argument("Relative_path.v: \"\": invalid path") |}];
+  require_does_raise (fun () -> Relative_path.v "..");
   [%expect
-    {| (Invalid_argument "Relative_path.v: path \"..\" escapes above starting point") |}];
-  require_does_raise [%here] (fun () -> Relative_path.v "../a");
+    {| Invalid_argument("Relative_path.v: path \"..\" escapes above starting point") |}];
+  require_does_raise (fun () -> Relative_path.v "../a");
   [%expect
-    {|
-    (Invalid_argument
-     "Relative_path.v: path \"../a\" escapes above starting point")
-    |}];
+    {| Invalid_argument("Relative_path.v: path \"../a\" escapes above starting point") |}];
   ()
 ;;
 
@@ -104,12 +101,9 @@ let%expect_test "of_fpath" =
   [%expect {| Not a relative path. |}];
   test_fpath (Fpath.v "/an/escaping/absolute/path/../../../../../..");
   [%expect {| Not a relative path. |}];
-  require_does_raise [%here] (fun () -> test_fpath (Fpath.v "an/../../escaping/path"));
+  require_does_raise (fun () -> test_fpath (Fpath.v "an/../../escaping/path"));
   [%expect
-    {|
-    (Invalid_argument
-     "Relative_path.of_fpath: path \"an/../../escaping/path\" escapes above starting point")
-    |}];
+    {| Invalid_argument("Relative_path.of_fpath: path \"an/../../escaping/path\" escapes above starting point") |}];
   ()
 ;;
 
@@ -153,9 +147,9 @@ let%expect_test "extend" =
   let rel = Relative_path.v in
   let file str = str |> Fsegment.v in
   let test a b = print_endline (Relative_path.extend a b |> Relative_path.to_string) in
-  require_does_raise [%here] (fun () : Fsegment.t -> file "a/b");
-  [%expect {| (Invalid_argument "Fsegment.v: invalid file segment \"a/b\"") |}];
-  require_does_not_raise [%here] (fun () -> ignore (file ".." : Fsegment.t));
+  require_does_raise (fun () : Fsegment.t -> file "a/b");
+  [%expect {| Invalid_argument("Fsegment.v: invalid file segment \"a/b\"") |}];
+  ignore (file ".." : Fsegment.t);
   [%expect {| |}];
   test Relative_path.empty (file "a");
   [%expect {| a |}];
@@ -185,12 +179,9 @@ let%expect_test "extend" =
   [%expect {| ./ |}];
   test (rel "a") (file "..");
   [%expect {| ./ |}];
-  require_does_raise [%here] (fun () -> test (rel "./") (file ".."));
+  require_does_raise (fun () -> test (rel "./") (file ".."));
   [%expect
-    {|
-    (Invalid_argument
-     "Relative_path.extend: path \"./..\" escapes above starting point")
-    |}];
+    {| Invalid_argument("Relative_path.extend: path \"./..\" escapes above starting point") |}];
   ()
 ;;
 
@@ -210,7 +201,7 @@ let%expect_test "parent" =
   test Relative_path.empty;
   [%expect {| None |}];
   (* Be specific about the expectations here. *)
-  require [%here] (Option.is_none (Relative_path.parent Relative_path.empty));
+  require (Option.is_none (Relative_path.parent Relative_path.empty));
   [%expect {||}];
   ()
 ;;
@@ -226,18 +217,12 @@ let%expect_test "of_list" =
   [%expect {| a |}];
   test [ "." ];
   [%expect {| ./ |}];
-  require_does_raise [%here] (fun () -> test [ ".." ]);
+  require_does_raise (fun () -> test [ ".." ]);
   [%expect
-    {|
-    (Invalid_argument
-     "Relative_path.extend: path \"./..\" escapes above starting point")
-    |}];
-  require_does_raise [%here] (fun () -> test [ "a"; ".."; ".." ]);
+    {| Invalid_argument("Relative_path.extend: path \"./..\" escapes above starting point") |}];
+  require_does_raise (fun () -> test [ "a"; ".."; ".." ]);
   [%expect
-    {|
-    (Invalid_argument
-     "Relative_path.extend: path \"./..\" escapes above starting point")
-    |}];
+    {| Invalid_argument("Relative_path.extend: path \"./..\" escapes above starting point") |}];
   test [ "a"; ".." ];
   [%expect {| ./ |}];
   test [ "a"; "." ];
@@ -247,12 +232,9 @@ let%expect_test "of_list" =
   test [ "a"; "b"; "c"; "d" ];
   [%expect {| a/b/c/d |}];
   (* Even if we would "come back" later, we fail at the intermediate escaping step. *)
-  require_does_raise [%here] (fun () -> test [ "a"; ".."; ".."; "b"; "c" ]);
+  require_does_raise (fun () -> test [ "a"; ".."; ".."; "b"; "c" ]);
   [%expect
-    {|
-    (Invalid_argument
-     "Relative_path.extend: path \"./..\" escapes above starting point")
-    |}];
+    {| Invalid_argument("Relative_path.extend: path \"./..\" escapes above starting point") |}];
   ()
 ;;
 

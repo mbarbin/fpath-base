@@ -31,8 +31,8 @@ let%expect_test "of_string" =
 ;;
 
 let%expect_test "v" =
-  require_does_raise [%here] (fun () -> Absolute_path.v "");
-  [%expect {| (Invalid_argument "Absolute_path.v: \"\": invalid path") |}];
+  require_does_raise (fun () -> Absolute_path.v "");
+  [%expect {| Invalid_argument("Absolute_path.v: \"\": invalid path") |}];
   ()
 ;;
 
@@ -84,8 +84,8 @@ let%expect_test "of_fpath" =
     |}];
   test_fpath (Fpath.v "a/relative/path");
   [%expect {| Not an absolute path. |}];
-  require_does_raise [%here] (fun () -> Fpath.v "");
-  [%expect {| (Invalid_argument "\"\": invalid path") |}];
+  require_does_raise (fun () -> Fpath.v "");
+  [%expect {| Invalid_argument("\"\": invalid path") |}];
   ()
 ;;
 
@@ -112,20 +112,14 @@ let%expect_test "append" =
   test (abs "/") (rel "./a/b/../c/.");
   [%expect {| /a/c/ |}];
   (* Escaping relative paths cannot be created. *)
-  require_does_raise [%here] (fun () ->
+  require_does_raise (fun () ->
     (test (abs "/a/c") (rel "./../b/d/../c/.") [@coverage off]));
   [%expect
-    {|
-    (Invalid_argument
-     "Relative_path.v: path \"./../b/d/../c/.\" escapes above starting point")
-    |}];
-  require_does_raise [%here] (fun () ->
+    {| Invalid_argument("Relative_path.v: path \"./../b/d/../c/.\" escapes above starting point") |}];
+  require_does_raise (fun () ->
     (test (abs "/a/c") (rel "./../../../b/d/../c/.") [@coverage off]));
   [%expect
-    {|
-    (Invalid_argument
-     "Relative_path.v: path \"./../../../b/d/../c/.\" escapes above starting point")
-    |}];
+    {| Invalid_argument("Relative_path.v: path \"./../../../b/d/../c/.\" escapes above starting point") |}];
   ()
 ;;
 
@@ -165,21 +159,15 @@ let%expect_test "append - v0.4.0 improvement" =
      This test verifies that attempts to create escaping relative paths fail
      before they can be used with append. *)
   (* These attempts to create escaping relative paths now fail. *)
-  require_does_raise [%here] (fun () -> Relative_path.v "..");
+  require_does_raise (fun () -> Relative_path.v "..");
   [%expect
-    {| (Invalid_argument "Relative_path.v: path \"..\" escapes above starting point") |}];
-  require_does_raise [%here] (fun () -> Relative_path.v "../foo");
+    {| Invalid_argument("Relative_path.v: path \"..\" escapes above starting point") |}];
+  require_does_raise (fun () -> Relative_path.v "../foo");
   [%expect
-    {|
-    (Invalid_argument
-     "Relative_path.v: path \"../foo\" escapes above starting point")
-    |}];
-  require_does_raise [%here] (fun () -> Relative_path.v "a/../..");
+    {| Invalid_argument("Relative_path.v: path \"../foo\" escapes above starting point") |}];
+  require_does_raise (fun () -> Relative_path.v "a/../..");
   [%expect
-    {|
-    (Invalid_argument
-     "Relative_path.v: path \"a/../..\" escapes above starting point")
-    |}];
+    {| Invalid_argument("Relative_path.v: path \"a/../..\" escapes above starting point") |}];
   (* Therefore, append can never receive an escaping path.
 
      Before v0.4.0, if you could construct [Relative_path.v "../foo"], then:
@@ -194,9 +182,9 @@ let%expect_test "extend" =
   let abs = Absolute_path.v in
   let file str = str |> Fsegment.v in
   let test a b = print_endline (Absolute_path.extend a b |> Absolute_path.to_string) in
-  require_does_raise [%here] (fun () : Fsegment.t -> file "a/b");
-  [%expect {| (Invalid_argument "Fsegment.v: invalid file segment \"a/b\"") |}];
-  require_does_not_raise [%here] (fun () -> ignore (file ".." : Fsegment.t));
+  require_does_raise (fun () : Fsegment.t -> file "a/b");
+  [%expect {| Invalid_argument("Fsegment.v: invalid file segment \"a/b\"") |}];
+  ignore (file ".." : Fsegment.t);
   [%expect {||}];
   test (abs "/") (file "a");
   [%expect {| /a |}];
