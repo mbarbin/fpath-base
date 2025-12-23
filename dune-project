@@ -108,19 +108,9 @@
    (= :version))
   (mdx
    (>= 2.4))
-  (ppx_compare
-   (>= v0.17))
-  (ppx_expect
-   (>= v0.17))
-  (ppx_hash
-   (>= v0.17))
   (ppx_js_style
-   (>= v0.17))
-  (ppx_sexp_conv
    (>= v0.17))
   (ppxlib
    (>= 0.33))
   (sherlodoc
-   (and
-    :with-doc
-    (>= 0.2)))))
+   (>= 0.2))))
