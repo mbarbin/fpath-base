@@ -4,73 +4,95 @@
 (*  SPDX-License-Identifier: MIT                                                 *)
 (*********************************************************************************)
 
+let%expect_test "sexp_of_t" =
+  print_endline
+    (Sexplib0.Sexp.to_string_hum
+       (Absolute_path.sexp_of_t (Absolute_path.v "/hello/path/to/sexp")));
+  [%expect {| /hello/path/to/sexp |}];
+  ()
+;;
+
 let%expect_test "of_string" =
   let test str =
-    print_s
-      [%sexp
-        (Absolute_path.of_string str : (Absolute_path.t, [ `Msg of string ]) Result.t)]
+    print_dyn
+      (or_msg_to_dyn
+         (fun p -> Dyn.string (Absolute_path.to_string p))
+         (Absolute_path.of_string str))
   in
   test "";
-  [%expect {| (Error (Msg "\"\": invalid path")) |}];
+  [%expect {| Error (Msg "\"\": invalid path") |}];
   test "/";
-  [%expect {| (Ok /) |}];
+  [%expect {| Ok "/" |}];
   test "a";
-  [%expect {| (Error (Msg "\"a\" is not an absolute path")) |}];
+  [%expect {| Error (Msg "\"a\" is not an absolute path") |}];
   test "/a/b/../..";
-  [%expect {| (Ok /) |}];
+  [%expect {| Ok "/" |}];
   ()
 ;;
 
 let%expect_test "v" =
-  require_does_raise [%here] (fun () -> Absolute_path.v "");
-  [%expect {| (Invalid_argument "Absolute_path.v: \"\": invalid path") |}];
+  require_does_raise (fun () -> Absolute_path.v "");
+  [%expect {| Invalid_argument("Absolute_path.v: \"\": invalid path") |}];
   ()
 ;;
 
 let%expect_test "of_fpath" =
   let test_fpath f =
     let t = Absolute_path.of_fpath f in
-    if Option.is_none t then print_s [%sexp "not an absolute path"];
+    if Option.is_none t then print_endline "Not an absolute path.";
     Option.iter t ~f:(fun t ->
       print_endline (Absolute_path.to_string t);
       let f' = Absolute_path.to_fpath t in
       if Fpath.equal f f'
-      then print_s [%sexp "does roundtrip", { f : Fpath.t }]
-      else print_s [%sexp "does not roundtrip", { f : Fpath.t; f' : Fpath.t }])
+      then
+        print_dyn
+          (Dyn.Tuple
+             [ String "Does roundtrip."; Record [ "f", String (f |> Fpath.to_string) ] ])
+      else
+        print_dyn
+          (Dyn.Tuple
+             [ String "Does not roundtrip."
+             ; Record
+                 [ "f", String (f |> Fpath.to_string)
+                 ; "f'", String (f' |> Fpath.to_string)
+                 ]
+             ]))
   in
   test_fpath (Fpath.v "/foo/bar");
   [%expect
     {|
     /foo/bar
-    ("does roundtrip" ((f /foo/bar))) |}];
+    ("Does roundtrip.", { f = "/foo/bar" })
+    |}];
   test_fpath (Fpath.v "/foo/bar/");
   [%expect
     {|
-      /foo/bar/
-      ("does roundtrip" ((f /foo/bar/))) |}];
+    /foo/bar/
+    ("Does roundtrip.", { f = "/foo/bar/" })
+    |}];
   test_fpath (Fpath.v "/");
   [%expect
     {|
     /
-    ("does roundtrip" ((f /))) |}];
+    ("Does roundtrip.", { f = "/" })
+    |}];
   test_fpath (Fpath.v "/.");
   [%expect
     {|
-      /
-      ("does not roundtrip" (
-        (f  /.)
-        (f' /))) |}];
+    /
+    ("Does not roundtrip.", { f = "/."; f' = "/" })
+    |}];
   test_fpath (Fpath.v "a/relative/path");
-  [%expect {| "not an absolute path" |}];
-  require_does_raise [%here] (fun () -> Fpath.v "");
-  [%expect {| (Invalid_argument "\"\": invalid path") |}];
+  [%expect {| Not an absolute path. |}];
+  require_does_raise (fun () -> Fpath.v "");
+  [%expect {| Invalid_argument("\"\": invalid path") |}];
   ()
 ;;
 
 let%expect_test "append" =
   let abs = Absolute_path.v in
   let rel = Relative_path.v in
-  let test a b = print_s [%sexp (Absolute_path.append a b : Absolute_path.t)] in
+  let test a b = print_endline (Absolute_path.append a b |> Absolute_path.to_string) in
   test (abs "/a") (rel "b");
   [%expect {| /a/b |}];
   test (abs "/a") (rel "b/");
@@ -90,20 +112,14 @@ let%expect_test "append" =
   test (abs "/") (rel "./a/b/../c/.");
   [%expect {| /a/c/ |}];
   (* Escaping relative paths cannot be created. *)
-  require_does_raise [%here] (fun () ->
+  require_does_raise (fun () ->
     (test (abs "/a/c") (rel "./../b/d/../c/.") [@coverage off]));
   [%expect
-    {|
-    (Invalid_argument
-     "Relative_path.v: path \"./../b/d/../c/.\" escapes above starting point")
-    |}];
-  require_does_raise [%here] (fun () ->
+    {| Invalid_argument("Relative_path.v: path \"./../b/d/../c/.\" escapes above starting point") |}];
+  require_does_raise (fun () ->
     (test (abs "/a/c") (rel "./../../../b/d/../c/.") [@coverage off]));
   [%expect
-    {|
-    (Invalid_argument
-     "Relative_path.v: path \"./../../../b/d/../c/.\" escapes above starting point")
-    |}];
+    {| Invalid_argument("Relative_path.v: path \"./../../../b/d/../c/.\" escapes above starting point") |}];
   ()
 ;;
 
@@ -116,7 +132,7 @@ let%expect_test "append - cannot escape base path" =
      This test demonstrates that append cannot escape the base path. *)
   let abs = Absolute_path.v in
   let rel = Relative_path.v in
-  let test a b = print_s [%sexp (Absolute_path.append a b : Absolute_path.t)] in
+  let test a b = print_endline (Absolute_path.append a b |> Absolute_path.to_string) in
   (* Appending a simple path stays below base. *)
   test (abs "/foo/bar") (rel "baz");
   [%expect {| /foo/bar/baz |}];
@@ -143,21 +159,15 @@ let%expect_test "append - v0.4.0 improvement" =
      This test verifies that attempts to create escaping relative paths fail
      before they can be used with append. *)
   (* These attempts to create escaping relative paths now fail. *)
-  require_does_raise [%here] (fun () -> Relative_path.v "..");
+  require_does_raise (fun () -> Relative_path.v "..");
   [%expect
-    {| (Invalid_argument "Relative_path.v: path \"..\" escapes above starting point") |}];
-  require_does_raise [%here] (fun () -> Relative_path.v "../foo");
+    {| Invalid_argument("Relative_path.v: path \"..\" escapes above starting point") |}];
+  require_does_raise (fun () -> Relative_path.v "../foo");
   [%expect
-    {|
-    (Invalid_argument
-     "Relative_path.v: path \"../foo\" escapes above starting point")
-    |}];
-  require_does_raise [%here] (fun () -> Relative_path.v "a/../..");
+    {| Invalid_argument("Relative_path.v: path \"../foo\" escapes above starting point") |}];
+  require_does_raise (fun () -> Relative_path.v "a/../..");
   [%expect
-    {|
-    (Invalid_argument
-     "Relative_path.v: path \"a/../..\" escapes above starting point")
-    |}];
+    {| Invalid_argument("Relative_path.v: path \"a/../..\" escapes above starting point") |}];
   (* Therefore, append can never receive an escaping path.
 
      Before v0.4.0, if you could construct [Relative_path.v "../foo"], then:
@@ -171,10 +181,10 @@ let%expect_test "append - v0.4.0 improvement" =
 let%expect_test "extend" =
   let abs = Absolute_path.v in
   let file str = str |> Fsegment.v in
-  let test a b = print_s [%sexp (Absolute_path.extend a b : Absolute_path.t)] in
-  require_does_raise [%here] (fun () : Fsegment.t -> file "a/b");
-  [%expect {| (Invalid_argument "Fsegment.v: invalid file segment \"a/b\"") |}];
-  require_does_not_raise [%here] (fun () -> ignore (file ".." : Fsegment.t));
+  let test a b = print_endline (Absolute_path.extend a b |> Absolute_path.to_string) in
+  require_does_raise (fun () : Fsegment.t -> file "a/b");
+  [%expect {| Invalid_argument("Fsegment.v: invalid file segment \"a/b\"") |}];
+  ignore (file ".." : Fsegment.t);
   [%expect {||}];
   test (abs "/") (file "a");
   [%expect {| /a |}];
@@ -203,20 +213,20 @@ let%expect_test "parent" =
   let abs = Absolute_path.v in
   let test path =
     let result = Absolute_path.parent path in
-    print_s [%sexp (result : Absolute_path.t option)]
+    print_dyn (Dyn.option (fun s -> Dyn.string (s |> Absolute_path.to_string)) result)
   in
   test (abs "/foo/bar");
-  [%expect {| (/foo/) |}];
+  [%expect {| Some "/foo/" |}];
   test (abs "/foo/bar/");
-  [%expect {| (/foo/) |}];
+  [%expect {| Some "/foo/" |}];
   test (abs "/foo/bar/../baz/../foo/");
-  [%expect {| (/foo/) |}];
+  [%expect {| Some "/foo/" |}];
   test (abs "/foo");
-  [%expect {| (/) |}];
+  [%expect {| Some "/" |}];
   test (abs "/");
-  [%expect {| () |}];
+  [%expect {| None |}];
   test (abs "/.");
-  [%expect {| () |}];
+  [%expect {| None |}];
   ()
 ;;
 
@@ -224,62 +234,62 @@ let%expect_test "chop_prefix" =
   let abs = Absolute_path.v in
   let test prefix path =
     let result = Absolute_path.chop_prefix path ~prefix in
-    print_s [%sexp (result : Relative_path.t option)]
+    print_dyn (Dyn.option (fun s -> Dyn.string (s |> Relative_path.to_string)) result)
   in
   test (abs "/foo") (abs "/foo/bar");
-  [%expect {| (bar) |}];
+  [%expect {| Some "bar" |}];
   test (abs "/foo/") (abs "/foo/bar");
-  [%expect {| (bar) |}];
+  [%expect {| Some "bar" |}];
   test (abs "/foo") (abs "/foo/bar/");
-  [%expect {| (bar/) |}];
+  [%expect {| Some "bar/" |}];
   test (abs "/foo/") (abs "/foo/bar/");
-  [%expect {| (bar/) |}];
+  [%expect {| Some "bar/" |}];
   test (abs "/foo/") (abs "/foo/");
-  [%expect {| (./) |}];
+  [%expect {| Some "./" |}];
   test (abs "/foo") (abs "/foo/");
-  [%expect {| (./) |}];
+  [%expect {| Some "./" |}];
   test (abs "/foo") (abs "/foo");
-  [%expect {| (./) |}];
+  [%expect {| Some "./" |}];
   test (abs "/foo/") (abs "/foo");
-  [%expect {| () |}];
+  [%expect {| None |}];
   test (abs "/foo/.") (abs "/foo/");
-  [%expect {| (./) |}];
+  [%expect {| Some "./" |}];
   test (abs "/foo/.") (abs "/foo");
-  [%expect {| () |}];
+  [%expect {| None |}];
   test (abs "/foo/") (abs "/foo/.");
-  [%expect {| (./) |}];
+  [%expect {| Some "./" |}];
   test (abs "/foo") (abs "/foo/.");
-  [%expect {| (./) |}];
+  [%expect {| Some "./" |}];
   test (abs "/foo/bar/") (abs "/foo/bar/");
-  [%expect {| (./) |}];
+  [%expect {| Some "./" |}];
   test (abs "/foo/bar") (abs "/foo/bar/");
-  [%expect {| (./) |}];
+  [%expect {| Some "./" |}];
   test (abs "/foo/bar") (abs "/foo/bar");
-  [%expect {| (./) |}];
+  [%expect {| Some "./" |}];
   test (abs "/foo/bar/") (abs "/foo/bar");
-  [%expect {| () |}];
+  [%expect {| None |}];
   test (abs "/foo") (abs "/foo/bar/baz");
-  [%expect {| (bar/baz) |}];
+  [%expect {| Some "bar/baz" |}];
   test (abs "/foo") (abs "/bar/baz");
-  [%expect {| () |}];
+  [%expect {| None |}];
   test (abs "/foo/bar") (abs "/foo");
-  [%expect {| () |}];
+  [%expect {| None |}];
   test (abs "/foo/bar") (abs "/foo/bar/baz");
-  [%expect {| (baz) |}];
+  [%expect {| Some "baz" |}];
   test (abs "/foo/bar") (abs "/foo/bar/baz/qux");
-  [%expect {| (baz/qux) |}];
+  [%expect {| Some "baz/qux" |}];
   (* Paths are normalized before the function call. *)
   test (abs "/foo/bar") (abs "/foo/bar/../baz");
-  [%expect {| () |}];
+  [%expect {| None |}];
   test (abs "/foo/bar") (abs "/foo/sna/../bar/baz");
-  [%expect {| (baz) |}];
+  [%expect {| Some "baz" |}];
   (* Beware of string prefix vs path prefix. *)
   test (abs "/foo/bar") (abs "/foo/bar-baz");
-  [%expect {| () |}];
+  [%expect {| None |}];
   test (abs "/") (abs "/foo/bar/baz");
-  [%expect {| (foo/bar/baz) |}];
+  [%expect {| Some "foo/bar/baz" |}];
   test (abs "/") (abs "/foo/bar/baz/");
-  [%expect {| (foo/bar/baz/) |}];
+  [%expect {| Some "foo/bar/baz/" |}];
   ()
 ;;
 
@@ -288,57 +298,57 @@ let%expect_test "chop_suffix" =
   let rel = Relative_path.v in
   let test path suffix =
     let result = Absolute_path.chop_suffix path ~suffix in
-    print_s [%sexp (result : Absolute_path.t option)]
+    print_dyn (Dyn.option (fun s -> Dyn.string (s |> Absolute_path.to_string)) result)
   in
   test (abs "/foo/bar") (rel "bar");
-  [%expect {| (/foo/) |}];
+  [%expect {| Some "/foo/" |}];
   test (abs "/foo/bar") (rel "bar/");
-  [%expect {| () |}];
+  [%expect {| None |}];
   test (abs "/foo/bar/") (rel "bar");
-  [%expect {| () |}];
+  [%expect {| None |}];
   test (abs "/foo/bar/") (rel "bar/");
-  [%expect {| (/foo/) |}];
+  [%expect {| Some "/foo/" |}];
   test (abs "/foo/bar") (rel ".");
-  [%expect {| (/foo/bar) |}];
+  [%expect {| Some "/foo/bar" |}];
   test (abs "/foo/bar/") (rel ".");
-  [%expect {| (/foo/bar/) |}];
+  [%expect {| Some "/foo/bar/" |}];
   test (abs "/foo/bar/.") (rel ".");
-  [%expect {| (/foo/bar/) |}];
+  [%expect {| Some "/foo/bar/" |}];
   test (abs "/bar") (rel "foo/bar");
-  [%expect {| () |}];
+  [%expect {| None |}];
   test (abs "/foo/bar") (rel "foo/bar");
-  [%expect {| (/) |}];
+  [%expect {| Some "/" |}];
   test (abs "/foo/bar") (rel "bar/");
-  [%expect {| () |}];
+  [%expect {| None |}];
   test (abs "/foo/bar/") (rel "bar");
-  [%expect {| () |}];
+  [%expect {| None |}];
   test (abs "/foo/bar/") (rel "bar/");
-  [%expect {| (/foo/) |}];
+  [%expect {| Some "/foo/" |}];
   test (abs "/foo/bar") (rel "baz");
-  [%expect {| () |}];
+  [%expect {| None |}];
   test (abs "/foo/bar/baz") (rel "bar/baz");
-  [%expect {| (/foo/) |}];
+  [%expect {| Some "/foo/" |}];
   test (abs "/foo/bar/baz") (rel "baz/qux");
-  [%expect {| () |}];
+  [%expect {| None |}];
   test (abs "/foo/bar/baz") (rel ".");
-  [%expect {| (/foo/bar/baz) |}];
+  [%expect {| Some "/foo/bar/baz" |}];
   test (abs "/foo/bar/baz/") (rel ".");
-  [%expect {| (/foo/bar/baz/) |}];
+  [%expect {| Some "/foo/bar/baz/" |}];
   test (abs "/foo/bar/baz") (rel "./");
-  [%expect {| (/foo/bar/baz) |}];
+  [%expect {| Some "/foo/bar/baz" |}];
   test (abs "/foo/bar/baz/") (rel "./");
-  [%expect {| (/foo/bar/baz/) |}];
+  [%expect {| Some "/foo/bar/baz/" |}];
   test (abs "/foo/bar/baz") (rel "foo/../baz");
-  [%expect {| (/foo/bar/) |}];
+  [%expect {| Some "/foo/bar/" |}];
   (* Beware of string suffix vs path suffix. *)
   test (abs "/foo/bar-baz") (rel "-baz");
-  [%expect {| () |}];
+  [%expect {| None |}];
   ()
 ;;
 
 let%expect_test "is_dir_path" =
   let abs = Absolute_path.v in
-  let test path = print_s [%sexp (Absolute_path.is_dir_path (abs path) : bool)] in
+  let test path = print_dyn (Absolute_path.is_dir_path (abs path) |> Dyn.bool) in
   test "/foo/bar";
   [%expect {| false |}];
   test "/foo/bar/";
@@ -357,7 +367,7 @@ let%expect_test "is_dir_path" =
 let%expect_test "to_dir_path" =
   let abs = Absolute_path.v in
   let test path =
-    print_s [%sexp (Absolute_path.to_dir_path (abs path) : Absolute_path.t)]
+    print_endline (Absolute_path.to_dir_path (abs path) |> Absolute_path.to_string)
   in
   test "/foo/bar";
   [%expect {| /foo/bar/ |}];
@@ -379,22 +389,29 @@ let%expect_test "rem_empty_seg" =
     let is_dir_path = Absolute_path.is_dir_path path in
     let path2 = Absolute_path.rem_empty_seg path in
     let is_dir_path2 = Absolute_path.is_dir_path path2 in
-    print_s
-      [%sexp
-        { path : Absolute_path.t; is_dir_path : bool }
-      , { path2 : Absolute_path.t; is_dir_path2 : bool }]
+    print_dyn
+      (Dyn.Tuple
+         [ Record
+             [ "path", path |> Absolute_path.to_string |> Dyn.string
+             ; "is_dir_path", is_dir_path |> Dyn.bool
+             ]
+         ; Record
+             [ "path2", path2 |> Absolute_path.to_string |> Dyn.string
+             ; "is_dir_path2", is_dir_path2 |> Dyn.bool
+             ]
+         ])
   in
   test (Absolute_path.v "/tmp/my-dir/");
   [%expect
     {|
-    (((path  /tmp/my-dir/) (is_dir_path  true))
-     ((path2 /tmp/my-dir)  (is_dir_path2 false)))
+    ({ path = "/tmp/my-dir/"; is_dir_path = true },
+     { path2 = "/tmp/my-dir"; is_dir_path2 = false })
     |}];
   test (Absolute_path.v "/tmp/my-file");
   [%expect
     {|
-    (((path  /tmp/my-file) (is_dir_path  false))
-     ((path2 /tmp/my-file) (is_dir_path2 false)))
+    ({ path = "/tmp/my-file"; is_dir_path = false },
+     { path2 = "/tmp/my-file"; is_dir_path2 = false })
     |}];
   ()
 ;;
@@ -418,11 +435,16 @@ let%expect_test "relativize" =
   ()
 ;;
 
+let hashtbl_to_dyn key value table =
+  let data = Hashtbl.to_alist table in
+  Dyn.Map (List.map data ~f:(fun (k, v) -> key k, value v))
+;;
+
 let%expect_test "hashtbl" =
   let t = Hashtbl.create (module Absolute_path) in
   Hashtbl.set t ~key:(Absolute_path.v "/tmp/my-file") ~data:42;
-  print_s [%sexp (t : int Hashtbl.M(Absolute_path).t)];
-  [%expect {| ((/tmp/my-file 42)) |}]
+  print_dyn (hashtbl_to_dyn (fun p -> Dyn.string (Absolute_path.to_string p)) Dyn.int t);
+  [%expect {| map { "/tmp/my-file" : 42 } |}]
 ;;
 
 module Pair = struct
@@ -433,6 +455,13 @@ module Pair = struct
     ; b : Absolute_path.t
     }
   [@@deriving compare, hash, sexp_of]
+
+  let to_dyn { a; b } =
+    Dyn.Record
+      [ "a", a |> Absolute_path.to_string |> Dyn.string
+      ; "b", b |> Absolute_path.to_string |> Dyn.string
+      ]
+  ;;
 end
 
 let%expect_test "hash-fold-t" =
@@ -441,12 +470,6 @@ let%expect_test "hash-fold-t" =
     t
     ~key:{ a = Absolute_path.v "/tmp/a"; b = Absolute_path.v "/tmp/a" }
     ~data:42;
-  print_s [%sexp (t : int Hashtbl.M(Pair).t)];
-  [%expect
-    {|
-    ((
-      ((a /tmp/a)
-       (b /tmp/a))
-      42))
-    |}]
+  print_dyn (hashtbl_to_dyn Pair.to_dyn Dyn.int t);
+  [%expect {| map { { a = "/tmp/a"; b = "/tmp/a" } : 42 } |}]
 ;;

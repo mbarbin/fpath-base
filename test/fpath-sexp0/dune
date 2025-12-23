@@ -8,8 +8,10 @@
   -warn-error
   +a
   -open
-  Fpath_sexp0)
- (libraries fpath fpath_sexp0)
+  Fpath_sexp0
+  -open
+  Stdlib_for_test)
+ (libraries fpath fpath_sexp0 stdlib_for_test)
  (inline_tests)
  (instrumentation
   (backend bisect_ppx))

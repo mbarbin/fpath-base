@@ -4,3 +4,4 @@ src/fpath-base
 src/fpath-sexp0
 test/fpath-base
 test/fpath-sexp0
+test/stdlib
