@@ -6,5 +6,5 @@
 (mdx
  (package fpath-base-dev)
  (deps
-  (package fpath-base))
+  (package fpath-sexp0))
  (preludes prelude.txt))
