@@ -62,6 +62,8 @@
    (>= 5.2))
   (base
    (>= v0.17))
+  (dyn
+   (>= 3.17))
   (expect_test_helpers_core
    (>= v0.17))
   (fpath
@@ -70,6 +72,8 @@
    (= :version))
   (fpath-sexp0
    (= :version))
+  (pp
+   (>= 2.0.0))
   (ppx_compare
    (>= v0.17))
   (ppx_expect

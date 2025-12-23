@@ -4,24 +4,34 @@
 (*  SPDX-License-Identifier: MIT                                                 *)
 (*********************************************************************************)
 
+let%expect_test "sexp_of_t" =
+  print_endline
+    (Sexplib0.Sexp.to_string_hum (Fsegment.sexp_of_t (Fsegment.v "hello-segment")));
+  [%expect {| hello-segment |}];
+  ()
+;;
+
 let%expect_test "of_string" =
   let test str =
-    print_s [%sexp (Fsegment.of_string str : (Fsegment.t, [ `Msg of string ]) Result.t)]
+    print_dyn
+      (or_msg_to_dyn
+         (fun p -> Dyn.string (Fsegment.to_string p))
+         (Fsegment.of_string str))
   in
   test "";
-  [%expect {| (Error (Msg "invalid file segment \"\"")) |}];
+  [%expect {| Error (Msg "invalid file segment \"\"") |}];
   test "a";
-  [%expect {| (Ok a) |}];
+  [%expect {| Ok "a" |}];
   test ".a";
-  [%expect {| (Ok .a) |}];
+  [%expect {| Ok ".a" |}];
   test "..";
-  [%expect {| (Ok ..) |}];
+  [%expect {| Ok ".." |}];
   test "/";
-  [%expect {| (Error (Msg "invalid file segment \"/\"")) |}];
+  [%expect {| Error (Msg "invalid file segment \"/\"") |}];
   test "a/b";
-  [%expect {| (Error (Msg "invalid file segment \"a/b\"")) |}];
+  [%expect {| Error (Msg "invalid file segment \"a/b\"") |}];
   test "a\000b";
-  [%expect {| (Error (Msg "invalid file segment \"a\\000b\"")) |}];
+  [%expect {| Error (Msg "invalid file segment \"a\\000b\"") |}];
   ()
 ;;
 
@@ -39,11 +49,16 @@ let%expect_test "hard coded" =
   ()
 ;;
 
+let hashtbl_to_dyn key value table =
+  let data = Hashtbl.to_alist table in
+  Dyn.Map (List.map data ~f:(fun (k, v) -> key k, value v))
+;;
+
 let%expect_test "hashtbl" =
   let t = Hashtbl.create (module Fsegment) in
   Hashtbl.set t ~key:(Fsegment.v "my-file") ~data:42;
-  print_s [%sexp (t : int Hashtbl.M(Fsegment).t)];
-  [%expect {| ((my-file 42)) |}]
+  print_dyn (hashtbl_to_dyn (fun p -> Dyn.string (Fsegment.to_string p)) Dyn.int t);
+  [%expect {| map { "my-file" : 42 } |}]
 ;;
 
 module Pair = struct
@@ -54,17 +69,18 @@ module Pair = struct
     ; b : Fsegment.t
     }
   [@@deriving compare, hash, sexp_of]
+
+  let to_dyn { a; b } =
+    Dyn.Record
+      [ "a", a |> Fsegment.to_string |> Dyn.string
+      ; "b", b |> Fsegment.to_string |> Dyn.string
+      ]
+  ;;
 end
 
 let%expect_test "hash-fold-t" =
   let t = Hashtbl.create (module Pair) in
   Hashtbl.set t ~key:{ a = Fsegment.v "a"; b = Fsegment.v "b" } ~data:42;
-  print_s [%sexp (t : int Hashtbl.M(Pair).t)];
-  [%expect
-    {|
-    ((
-      ((a a)
-       (b b))
-      42))
-    |}]
+  print_dyn (hashtbl_to_dyn Pair.to_dyn Dyn.int t);
+  [%expect {| map { { a = "a"; b = "b" } : 42 } |}]
 ;;
