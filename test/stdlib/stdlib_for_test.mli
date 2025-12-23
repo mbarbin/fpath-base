@@ -33,6 +33,7 @@ val or_msg_to_dyn : ('a -> Dyn.t) -> ('a, [ `Msg of string ]) Result.t -> Dyn.t
 
 (** Expect test helpers. *)
 
+val print_endline : string -> unit
 val require : bool -> unit
 val require_does_raise : (unit -> 'a) -> unit
 

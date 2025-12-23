@@ -64,14 +64,14 @@
    (>= v0.17))
   (dyn
    (>= 3.17))
-  (expect_test_helpers_core
-   (>= v0.17))
   (fpath
    (>= 0.7.3))
   (fpath-base
    (= :version))
   (fpath-sexp0
    (= :version))
+  (ordering
+   (>= 3.17))
   (pp
    (>= 2.0.0))
   (ppx_compare
@@ -80,11 +80,7 @@
    (>= v0.17))
   (ppx_hash
    (>= v0.17))
-  (ppx_here
-   (>= v0.17))
   (ppx_sexp_conv
-   (>= v0.17))
-  (ppx_sexp_value
    (>= v0.17))
   (ppxlib
    (>= 0.33))))
@@ -102,8 +98,6 @@
    (>= v0.17))
   (bisect_ppx
    (>= 2.8.3))
-  (expect_test_helpers_core
-   (>= v0.17))
   (fpath
    (>= 0.7.3))
   (fpath-base
@@ -120,13 +114,9 @@
    (>= v0.17))
   (ppx_hash
    (>= v0.17))
-  (ppx_here
-   (>= v0.17))
   (ppx_js_style
    (>= v0.17))
   (ppx_sexp_conv
-   (>= v0.17))
-  (ppx_sexp_value
    (>= v0.17))
   (ppxlib
    (>= 0.33))

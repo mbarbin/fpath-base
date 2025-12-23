@@ -31,6 +31,7 @@ module Int = struct
   let to_dyn = Dyn.int
 end
 
+let print_endline = Stdlib.print_endline
 let require cond = if not cond then failwith "Required condition does not hold"
 
 let require_does_raise f =
