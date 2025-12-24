@@ -1,8 +1,14 @@
 ## 0.X.X (unreleased)
 
+### Changed
+
+- Migrate expect-tests to `dyn` syntax (#26, @mbarbin).
+- Reduce test dependencies (#25, @mbarbin).
+- Internal pkg directory structure refactor (#24, @mbarbin).
+
 ### Removed
 
-- Remove deprecated `Fpart` module (use `Fsegment` instead, deprecated since 0.3.0) (#PR, @mbarbin).
+- Remove deprecated `Fpart` module (use `Fsegment` instead, deprecated since 0.3.0) (#21, @mbarbin).
 
 ## 0.4.0 (2025-10-20)
 
