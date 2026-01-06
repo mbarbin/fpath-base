@@ -65,4 +65,4 @@ jobs:
         run: opam install ./fpath-sexp0.opam ./fpath-base.opam ./fpath-base-tests.opam --deps-only --with-test
 
       - name: Build & Run tests
-        run: opam exec -- dune build @all @runtest -p fpath-sexp0,fpath-base,fpath-base-tests
+        run: opam exec -- dune build @all @runtest --only-packages=fpath-sexp0,fpath-base,fpath-base-tests
