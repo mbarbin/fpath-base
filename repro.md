@@ -1,3 +1,5 @@
+# Repro 1
+
 At rev: 41f8fff63687de56a8693a8add4ad1af9e8060b5
 
 ```sh
@@ -10,6 +12,10 @@ gmake: *** [Makefile:2670: install] Error 1
 ```
 
 ----
+
+# Repro 2
+
+At rev: 5e322a3a65d98f030856f5e41d581992d2e2406b
 
 ```sh
 $ dune-pkg build --workspace=dune-workspace.ci --display=short --only-packages=fpath-sexp0

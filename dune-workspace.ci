@@ -4,6 +4,10 @@
 
 (context
  (default
+  (lock_dir dune-5.4.lock)))
+
+(context
+ (default
   (name default-5.4)
   (lock_dir dune-5.4.lock)))
 
