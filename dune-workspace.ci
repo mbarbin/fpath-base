@@ -1,0 +1,67 @@
+(lang dune 3.20)
+
+(pkg enabled)
+
+(context
+ (default
+  (lock_dir dune.lock)))
+
+(lock_dir
+ (path dune.lock)
+ (repositories overlay upstream alpha mbarbin))
+
+(context
+ (default
+  (name default-5.4)
+  (lock_dir dune-5.4.lock)))
+
+(lock_dir
+ (path dune-5.4.lock)
+ (repositories overlay upstream alpha mbarbin)
+ (constraints
+  (ocaml
+   (= 5.4.0))))
+
+(context
+ (default
+  (name default-5.3)
+  (lock_dir dune-5.3.lock)))
+
+(lock_dir
+ (path dune-5.3.lock)
+ (repositories overlay upstream mbarbin)
+ (constraints
+  (ocaml
+   (= 5.3.0))))
+
+(context
+ (default
+  (name default-5.2)
+  (lock_dir dune-5.2.lock)))
+
+(lock_dir
+ (path dune-5.2.lock)
+ (repositories overlay upstream mbarbin)
+ (constraints
+  (ocaml
+   (= 5.2.1))))
+
+(context
+ (default
+  (name default-4.14)
+  (lock_dir dune-4.14.lock)))
+
+(lock_dir
+ (path dune-4.14.lock)
+ (repositories overlay upstream mbarbin)
+ (constraints
+  (ocaml
+   (= 4.14.2))))
+
+(repository
+ (name mbarbin)
+ (url "git+https://github.com/mbarbin/opam-repository.git"))
+
+(repository
+ (name alpha)
+ (url "git+https://github.com/kit-ty-kate/opam-alpha-repository.git"))
