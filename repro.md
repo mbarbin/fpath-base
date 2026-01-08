@@ -1,3 +1,13 @@
+# Dune version
+
+`dune-pkg` is a nightly built dune available in my PATH:
+
+```sh
+$ dune-pkg --version
+"Nightly build 2026-01-08T02:56:04Z, git revision
+ddefc9902ce3fbc7dcfadda5c2c8594d236868c0"
+```
+
 # Repro 1
 
 At rev: 41f8fff63687de56a8693a8add4ad1af9e8060b5
@@ -79,3 +89,9 @@ Selected candidates: astring.0.8.5 base.v0.17.3 base-unix.base csexp.1.5.2
 
 The error is confusing, I would expect it to explain that `fpath-base` is not
 available in the context `4.14` which is built by default.
+
+# Question?
+
+If `dune build` builds all context available, but not all packages are available
+on all contextes (like this is the case here), question is: how do you organize
+your CI?
