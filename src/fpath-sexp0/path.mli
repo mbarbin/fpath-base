@@ -185,7 +185,7 @@ module Relative_path : sig
 
       For example:
       {[
-        of_list [ Fsegment.v "a"; Fsegment.v ".."; Fsegment.v ".." ]
+      of_list [ Fsegment.v "a"; Fsegment.v ".."; Fsegment.v ".." ]
       ]}
       raises because the second [".."] would require going from ["./"] to
       ["../"]. See [extend] for details. *)
