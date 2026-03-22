@@ -15,8 +15,6 @@
 
 (documentation "https://mbarbin.github.io/fpath-base/")
 
-(using mdx 0.4)
-
 ;; The value for the [implicit_transitive_deps] option is set during the CI
 ;; depending on the OCaml compiler version.
 ;;
@@ -106,8 +104,6 @@
    (= :version))
   (fpath-sexp0
    (= :version))
-  (mdx
-   (>= 2.4))
   (ppx_js_style
    (>= v0.17))
   (ppxlib

@@ -3,8 +3,36 @@
   (env-vars
    (OCAMLRUNPARAM b=0))))
 
-(mdx
+(library
+ (name migration_0_4_0)
  (package fpath-base-dev)
- (deps
-  (package fpath-sexp0))
- (preludes prelude.txt))
+ (inline_tests)
+ (flags
+  :standard
+  -w
+  +a-4-40-41-42-44-45-48-66
+  -warn-error
+  +a
+  -open
+  Fpath_sexp0)
+ (libraries fpath fpath_sexp0)
+ (instrumentation
+  (backend bisect_ppx))
+ (lint
+  (pps ppx_js_style -allow-let-operators -check-doc-comments))
+ (preprocess
+  (pps ppx_expect)))
+
+(rule
+ (target migration-0.4.0.md.gen)
+ (deps migration_0_4_0.ml)
+ (action
+  (with-stdout-to
+   %{target}
+   (run mdexp pp %{deps}))))
+
+(rule
+ (package fpath-base-dev)
+ (alias runtest)
+ (action
+  (diff migration-0.4.0.md migration-0.4.0.md.gen)))
