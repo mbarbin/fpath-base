@@ -1,2 +1,0 @@
-#require "fpath-sexp0" ;;
-open Fpath_sexp0 ;;

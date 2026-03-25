@@ -2,63 +2,75 @@
 
 ## Overview
 
-Starting in version 0.4.0, `Relative_path.t` rejects paths that escape above their starting point.
+Starting in version 0.4.0, `Relative_path.t` rejects paths that escape
+above their starting point.
 
 **The process:**
-1. Paths are normalized using `Fpath.normalize` (resolves `.` and `..` segments)
-2. If the normalized path has leading `..` segments, it's rejected by `Relative_path.t`
+1. Paths are normalized using `Fpath.normalize` (resolves `.` and `..`
+segments)
+2. If the normalized path has leading `..` segments, it's rejected by
+`Relative_path.t`
 
 ## What Gets Rejected
+
+```ocaml
+let test s =
+  match Relative_path.of_string s with
+  | Ok p -> Printf.printf "%s => Ok %s\n" s (Relative_path.to_string p)
+  | Error (`Msg m) -> Printf.printf "%s => Error: %s\n" s m
+;;
+```
 
 Paths that escape above their starting point:
 
 ```ocaml
-# Relative_path.v ".." ;;
-Exception:
-Invalid_argument "Relative_path.v: path \"..\" escapes above starting point".
-# Relative_path.v "../config" ;;
-Exception:
-Invalid_argument
- "Relative_path.v: path \"../config\" escapes above starting point".
-# Relative_path.v "a/../.." ;;
-Exception:
-Invalid_argument
- "Relative_path.v: path \"a/../..\" escapes above starting point".
+let%expect_test "escaping paths are rejected" =
+  test "..";
+  [%expect {| .. => Error: path ".." escapes above starting point |}];
+  test "../config";
+  [%expect {| ../config => Error: path "../config" escapes above starting point |}];
+  test "a/../..";
+  [%expect {| a/../.. => Error: path "a/../.." escapes above starting point |}]
+;;
 ```
 
-Paths that stay within bounds are accepted:
+Paths that stay within bounds are accepted and normalized:
 
 ```ocaml
-# Relative_path.to_string (Relative_path.v "a/..") ;;
-- : string = "./"
-# Relative_path.to_string (Relative_path.v "a/b/../c") ;;
-- : string = "a/c"
+let%expect_test "non-escaping paths are normalized" =
+  test "a/..";
+  [%expect {| a/.. => Ok ./ |}];
+  test "a/b/../c";
+  [%expect {| a/b/../c => Ok a/c |}]
+;;
 ```
 
 ## Why This Matters
 
 ### Prevents Memory Growth
 
-Before v0.4.0, calling `parent` repeatedly could grow memory unboundedly:
+Before v0.4.0, calling `parent` repeatedly could grow memory unboundedly.
+Starting from `"./"`:
+- `parent "./"` returned `"../"`
+- `parent "../"` returned `"../../"`
+- `parent "../../"` returned `"../../../"` — and so on forever
 
-<!-- $MDX skip -->
-```ocaml
-(* Before: Starting from "./" *)
-parent "./"    (* -> "../" *)
-parent "../"   (* -> "../../" *)
-parent "../../" (* -> "../../../" ... forever *)
-```
-
-After v0.4.0:
+After v0.4.0, `parent` returns `None` when there's nothing left:
 
 ```ocaml
-# Relative_path.parent Relative_path.empty ;;
-- : Relative_path.t option = None
+let%expect_test "parent stops at root" =
+  print_string
+    (match Relative_path.parent Relative_path.empty with
+     | None -> "None"
+     | Some _ -> assert false);
+  [%expect {| None |}]
+;;
 ```
 
 ### Type Safety Guarantee
 
-`Relative_path.t` now guarantees the path won't escape above its starting point, making it safe for:
+`Relative_path.t` now guarantees the path won't escape above its starting
+point, making it safe for:
 - Sandbox operations (can't escape sandbox root)
 - Archive extraction (can't write outside target directory)
 - Path concatenation (stays within base directory)
@@ -68,8 +80,7 @@ After v0.4.0:
 If you need paths with leading `..` segments, use `Fpath.t` directly:
 
 ```ocaml
-# let path : Fpath.t = Fpath.v "../config" |> Fpath.normalize ;;
-val path : Fpath.t = <abstr>
+let path : Fpath.t = Fpath.v "../config" |> Fpath.normalize
 ```
 
 ## Type Selection Guide

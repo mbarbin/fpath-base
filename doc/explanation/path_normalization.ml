@@ -1,0 +1,106 @@
+(*********************************************************************************)
+(*  fpath-base: Extending [Fpath] to use alongside [Sexplib0] and/or [Base]      *)
+(*  SPDX-FileCopyrightText: 2023-2025 Mathieu Barbin <mathieu.barbin@gmail.com>  *)
+(*  SPDX-License-Identifier: MIT                                                 *)
+(*********************************************************************************)
+
+(* @mdexp
+
+   # Path Normalization and Escaping Prevention
+
+   ## Overview
+
+   Starting in version 0.4.0, `Relative_path.t` rejects paths that escape
+   above their starting point.
+
+   **The process:**
+   1. Paths are normalized using `Fpath.normalize` (resolves `.` and `..`
+   segments)
+   2. If the normalized path has leading `..` segments, it's rejected by
+   `Relative_path.t`
+
+   ## What Gets Rejected
+
+   @mdexp.code *)
+let test s =
+  match Relative_path.of_string s with
+  | Ok p -> Printf.printf "%s => Ok %s\n" s (Relative_path.to_string p)
+  | Error (`Msg m) -> Printf.printf "%s => Error: %s\n" s m
+;;
+
+(* @mdexp
+
+   Paths that escape above their starting point:
+
+   @mdexp.code *)
+let%expect_test "escaping paths are rejected" =
+  test "..";
+  [%expect {| .. => Error: path ".." escapes above starting point |}];
+  test "../config";
+  [%expect {| ../config => Error: path "../config" escapes above starting point |}];
+  test "a/../..";
+  [%expect {| a/../.. => Error: path "a/../.." escapes above starting point |}]
+;;
+
+(* @mdexp
+
+   Paths that stay within bounds are accepted and normalized:
+
+   @mdexp.code *)
+let%expect_test "non-escaping paths are normalized" =
+  test "a/..";
+  [%expect {| a/.. => Ok ./ |}];
+  test "a/b/../c";
+  [%expect {| a/b/../c => Ok a/c |}]
+;;
+
+(* @mdexp
+
+   ## Why This Matters
+
+   ### Prevents Memory Growth
+
+   Before v0.4.0, calling `parent` repeatedly could grow memory unboundedly.
+   Starting from `"./"`:
+   - `parent "./"` returned `"../"`
+   - `parent "../"` returned `"../../"`
+   - `parent "../../"` returned `"../../../"` — and so on forever
+
+   After v0.4.0, `parent` returns `None` when there's nothing left:
+
+   @mdexp.code *)
+let%expect_test "parent stops at root" =
+  print_string
+    (match Relative_path.parent Relative_path.empty with
+     | None -> "None"
+     | Some _ -> assert false);
+  [%expect {| None |}]
+;;
+
+(* @mdexp
+
+   ### Type Safety Guarantee
+
+   `Relative_path.t` now guarantees the path won't escape above its starting
+   point, making it safe for:
+   - Sandbox operations (can't escape sandbox root)
+   - Archive extraction (can't write outside target directory)
+   - Path concatenation (stays within base directory)
+
+   ## When You Need Escaping Paths
+
+   If you need paths with leading `..` segments, use `Fpath.t` directly:
+
+   ```ocaml
+   let path : Fpath.t = Fpath.v "../config" |> Fpath.normalize
+   ```
+
+   ## Type Selection Guide
+
+   ```
+   Does the path escape above its starting point (has leading ".." after normalization)?
+   ├─ YES → Use Fpath.t
+   └─ NO  → Does it start from filesystem root?
+            ├─ YES → Use Absolute_path.t
+            └─ NO  → Use Relative_path.t
+   ``` *)
