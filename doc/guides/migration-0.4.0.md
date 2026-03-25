@@ -13,8 +13,12 @@ All construction functions (`v`, `of_string`, `of_fpath`) now reject
 escaping paths:
 
 ```ocaml
-Relative_path.v "../config" raises:
-Invalid_argument "Relative_path.v: path \"../config\" escapes above starting point"
+let%expect_test "construction rejects escaping" =
+  (match Relative_path.v "../config" with
+   | (_ : Relative_path.t) -> assert false
+   | exception Invalid_argument msg -> print_endline msg);
+  [%expect {| Relative_path.v: path "../config" escapes above starting point |}]
+;;
 ```
 
 **Migration options:**
@@ -36,13 +40,27 @@ let path : Fpath.t = Fpath.v "../config" |> Fpath.normalize
 Returns `None` for the empty path (previously returned `"../"`):
 
 ```ocaml
-Relative_path.parent Relative_path.empty => None
+let%expect_test "parent of empty" =
+  print_string
+    (match Relative_path.parent Relative_path.empty with
+     | None -> "None"
+     | Some _ -> assert false);
+  [%expect {| None |}]
+;;
 ```
 
 This fixes infinite loops in upward navigation:
 
 ```ocaml
-navigate_to_root (Relative_path.v "a/b/c") => "./"
+let%expect_test "navigate to root" =
+  let rec navigate_to_root path =
+    match Relative_path.parent path with
+    | None -> path
+    | Some p -> navigate_to_root p
+  in
+  print_string (Relative_path.to_string (navigate_to_root (Relative_path.v "a/b/c")));
+  [%expect {| ./ |}]
+;;
 ```
 
 ### Extend Function
@@ -50,8 +68,12 @@ navigate_to_root (Relative_path.v "a/b/c") => "./"
 Raises `Invalid_argument` if extending creates an escaping path:
 
 ```ocaml
-Relative_path.extend Relative_path.empty (Fsegment.v "..") raises:
-Invalid_argument "Relative_path.extend: path \"./..\" escapes above starting point"
+let%expect_test "extend rejects escaping" =
+  (match Relative_path.extend Relative_path.empty (Fsegment.v "..") with
+   | (_ : Relative_path.t) -> assert false
+   | exception Invalid_argument msg -> print_endline msg);
+  [%expect {| Relative_path.extend: path "./.." escapes above starting point |}]
+;;
 ```
 
 **Migration:** Use `Fpath.t` if segments might create escaping paths.
@@ -61,7 +83,15 @@ Invalid_argument "Relative_path.extend: path \"./..\" escapes above starting poi
 Empty prefix/suffix now returns `Some path` (previously `None`):
 
 ```ocaml
-chop_prefix (Relative_path.v "foo/bar") ~prefix:empty => "foo/bar"
+let%expect_test "chop prefix with empty" =
+  print_string
+    (match
+       Relative_path.chop_prefix (Relative_path.v "foo/bar") ~prefix:Relative_path.empty
+     with
+     | None -> assert false
+     | Some p -> Relative_path.to_string p);
+  [%expect {| foo/bar |}]
+;;
 ```
 
 ## Common Migration Patterns
@@ -71,7 +101,21 @@ chop_prefix (Relative_path.v "foo/bar") ~prefix:empty => "foo/bar"
 Validate paths and handle rejections:
 
 ```ocaml
-load_relative_file "config/settings.conf" => Ok "config/settings.conf"
+let try_load filename =
+  match Relative_path.of_string filename with
+  | Ok p -> Printf.printf "%s => Ok %s\n" filename (Relative_path.to_string p)
+  | Error (`Msg msg) -> Printf.printf "%s => Error: %s\n" filename msg
+;;
+```
+
+```ocaml
+let%expect_test "validate user input" =
+  try_load "config/settings.conf";
+  [%expect {| config/settings.conf => Ok config/settings.conf |}];
+  try_load "../../../etc/passwd";
+  [%expect
+    {| ../../../etc/passwd => Error: path "../../../etc/passwd" escapes above starting point |}]
+;;
 ```
 
 ### Upward Navigation
@@ -79,15 +123,17 @@ load_relative_file "config/settings.conf" => Ok "config/settings.conf"
 Use absolute paths for upward traversal:
 
 ```ocaml
-let find_project_root has_marker current_path =
+let find_project_root ~has_marker current_path =
   let rec search path =
-    if has_marker path then Some path
-    else
+    if has_marker path
+    then Some path
+    else (
       match Absolute_path.parent path with
       | None -> None
-      | Some parent -> search parent
+      | Some parent -> search parent)
   in
   search current_path
+;;
 ```
 
 ## Why These Changes

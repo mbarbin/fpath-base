@@ -21,51 +21,37 @@
 
    ## What Gets Rejected
 
-   Paths that escape above their starting point: *)
-
-let%expect_test "rejected paths" =
-  let show str =
-    Printf.printf "Relative_path.v %S\n" str;
-    match Relative_path.of_string str with
-    | Ok _ -> print_endline "=> Ok"
-    | Error (`Msg msg) -> Printf.printf "=> Error: %s\n\n" msg
-  in
-  show "..";
-  show "../config";
-  show "a/../..";
-  (* @mdexp.snapshot { lang: "ocaml" } *)
-  [%expect
-    {|
-    Relative_path.v ".."
-    => Error: path ".." escapes above starting point
-
-    Relative_path.v "../config"
-    => Error: path "../config" escapes above starting point
-
-    Relative_path.v "a/../.."
-    => Error: path "a/../.." escapes above starting point
-    |}]
+   @mdexp.code *)
+let test s =
+  match Relative_path.of_string s with
+  | Ok p -> Printf.printf "%s => Ok %s\n" s (Relative_path.to_string p)
+  | Error (`Msg m) -> Printf.printf "%s => Error: %s\n" s m
 ;;
 
 (* @mdexp
 
-   Paths that stay within bounds are accepted: *)
+   Paths that escape above their starting point:
 
-let%expect_test "accepted paths" =
-  let show str =
-    Printf.printf
-      "Relative_path.v %S => %S\n"
-      str
-      (Relative_path.to_string (Relative_path.v str))
-  in
-  show "a/..";
-  show "a/b/../c";
-  (* @mdexp.snapshot { lang: "ocaml" } *)
-  [%expect
-    {|
-    Relative_path.v "a/.." => "./"
-    Relative_path.v "a/b/../c" => "a/c"
-    |}]
+   @mdexp.code *)
+let%expect_test "escaping paths are rejected" =
+  test "..";
+  [%expect {| .. => Error: path ".." escapes above starting point |}];
+  test "../config";
+  [%expect {| ../config => Error: path "../config" escapes above starting point |}];
+  test "a/../..";
+  [%expect {| a/../.. => Error: path "a/../.." escapes above starting point |}]
+;;
+
+(* @mdexp
+
+   Paths that stay within bounds are accepted and normalized:
+
+   @mdexp.code *)
+let%expect_test "non-escaping paths are normalized" =
+  test "a/..";
+  [%expect {| a/.. => Ok ./ |}];
+  test "a/b/../c";
+  [%expect {| a/b/../c => Ok a/c |}]
 ;;
 
 (* @mdexp
@@ -80,16 +66,15 @@ let%expect_test "accepted paths" =
    - `parent "../"` returned `"../../"`
    - `parent "../../"` returned `"../../../"` — and so on forever
 
-   After v0.4.0: *)
+   After v0.4.0, `parent` returns `None` when there's nothing left:
 
-let%expect_test "parent of empty" =
-  Printf.printf
-    "Relative_path.parent Relative_path.empty => %s\n"
+   @mdexp.code *)
+let%expect_test "parent stops at root" =
+  print_string
     (match Relative_path.parent Relative_path.empty with
      | None -> "None"
-     | Some p -> Printf.sprintf "Some %S" (Relative_path.to_string p));
-  (* @mdexp.snapshot { lang: "ocaml" } *)
-  [%expect {| Relative_path.parent Relative_path.empty => None |}]
+     | Some _ -> assert false);
+  [%expect {| None |}]
 ;;
 
 (* @mdexp

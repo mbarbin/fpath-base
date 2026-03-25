@@ -13,24 +13,36 @@ segments)
 
 ## What Gets Rejected
 
+```ocaml
+let test s =
+  match Relative_path.of_string s with
+  | Ok p -> Printf.printf "%s => Ok %s\n" s (Relative_path.to_string p)
+  | Error (`Msg m) -> Printf.printf "%s => Error: %s\n" s m
+;;
+```
+
 Paths that escape above their starting point:
 
 ```ocaml
-Relative_path.v ".."
-=> Error: path ".." escapes above starting point
-
-Relative_path.v "../config"
-=> Error: path "../config" escapes above starting point
-
-Relative_path.v "a/../.."
-=> Error: path "a/../.." escapes above starting point
+let%expect_test "escaping paths are rejected" =
+  test "..";
+  [%expect {| .. => Error: path ".." escapes above starting point |}];
+  test "../config";
+  [%expect {| ../config => Error: path "../config" escapes above starting point |}];
+  test "a/../..";
+  [%expect {| a/../.. => Error: path "a/../.." escapes above starting point |}]
+;;
 ```
 
-Paths that stay within bounds are accepted:
+Paths that stay within bounds are accepted and normalized:
 
 ```ocaml
-Relative_path.v "a/.." => "./"
-Relative_path.v "a/b/../c" => "a/c"
+let%expect_test "non-escaping paths are normalized" =
+  test "a/..";
+  [%expect {| a/.. => Ok ./ |}];
+  test "a/b/../c";
+  [%expect {| a/b/../c => Ok a/c |}]
+;;
 ```
 
 ## Why This Matters
@@ -43,10 +55,16 @@ Starting from `"./"`:
 - `parent "../"` returned `"../../"`
 - `parent "../../"` returned `"../../../"` — and so on forever
 
-After v0.4.0:
+After v0.4.0, `parent` returns `None` when there's nothing left:
 
 ```ocaml
-Relative_path.parent Relative_path.empty => None
+let%expect_test "parent stops at root" =
+  print_string
+    (match Relative_path.parent Relative_path.empty with
+     | None -> "None"
+     | Some _ -> assert false);
+  [%expect {| None |}]
+;;
 ```
 
 ### Type Safety Guarantee
