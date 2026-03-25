@@ -25,6 +25,7 @@
 
 (rule
  (target migration-0.4.0.md.gen)
+ (package fpath-base-dev)
  (deps migration_0_4_0.ml)
  (action
   (with-stdout-to

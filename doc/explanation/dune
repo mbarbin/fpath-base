@@ -25,6 +25,7 @@
 
 (rule
  (target path-normalization.md.gen)
+ (package fpath-base-dev)
  (deps path_normalization.ml)
  (action
   (with-stdout-to
