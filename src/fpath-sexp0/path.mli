@@ -20,7 +20,7 @@ module Absolute_path : sig
       following invariants:
 
       - The path is absolute (starts with ["/"])
-      - The path is normalized via {!Fpath.normalize}, so all [".."] segments
+      - The path is normalized via [Fpath.normalize], so all [".."] segments
         are resolved *)
   type t = absolute_path
 
@@ -32,11 +32,11 @@ module Absolute_path : sig
   val to_fpath : t -> Fpath.t
   val to_string : t -> string
 
-  (** [of_fpath p] returns [p] normalized via {!Fpath.normalize} and classified
+  (** [of_fpath p] returns [p] normalized via [Fpath.normalize] and classified
       as an absolute path. Returns [None] if [p] is not an absolute path. *)
   val of_fpath : Fpath.t -> t option
 
-  (** This is a convenient wrapper to compose {!Fpath.of_string} and {!of_fpath}. *)
+  (** This is a convenient wrapper to compose [Fpath.of_string] and {!of_fpath}. *)
   val of_string : string -> (t, [ `Msg of string ]) Result.t
 
   (** [v str] returns a [t] or raises [Invalid_argument]. *)
@@ -46,14 +46,14 @@ module Absolute_path : sig
   val root : t
 
   (** [append abs rel] appends relative path [rel] to absolute path [abs] and
-      normalizes the result via {!Fpath.normalize}.
+      normalizes the result via [Fpath.normalize].
 
       The result is guaranteed to stay at or below [abs] in the directory tree,
       since [relative_path] values cannot escape upward. *)
   val append : t -> relative_path -> t
 
   (** [extend abs seg] appends filesystem segment [seg] to absolute path [abs]
-      and normalizes the result via {!Fpath.normalize}. *)
+      and normalizes the result via [Fpath.normalize]. *)
   val extend : t -> Fsegment.t -> t
 
   val parent : t -> t option
@@ -90,7 +90,7 @@ module Relative_path : sig
   (** Relative paths that are guaranteed not to escape upward.
 
       Values of type [t] are guaranteed to never escape upward. Paths are
-      normalized via {!Fpath.normalize}, and if the result contains leading
+      normalized via [Fpath.normalize], and if the result contains leading
       [".."] segments, they are rejected at construction time with
       [Invalid_argument].
 
@@ -99,7 +99,7 @@ module Relative_path : sig
       constructed.
 
       For paths that need to reference parent directories with [".."] segments,
-      use {!Fpath.t} directly. *)
+      use [Fpath.t] directly. *)
 
   (** The type of relative paths that never escape upward.
 
@@ -108,7 +108,7 @@ module Relative_path : sig
       following invariants:
 
       - The path is relative (does not start with ["/"])
-      - The path is normalized via {!Fpath.normalize}
+      - The path is normalized via [Fpath.normalize]
       - The normalized path does not contain leading [".."] segments (does not
         escape upward)
 
@@ -134,14 +134,14 @@ module Relative_path : sig
   val to_fpath : t -> Fpath.t
   val to_string : t -> string
 
-  (** [of_fpath p] returns [p] normalized via {!Fpath.normalize} and classified
+  (** [of_fpath p] returns [p] normalized via [Fpath.normalize] and classified
       as a relative path. Returns [None] if [p] is not a relative path.
 
       Raises [Invalid_argument] if the normalized path contains leading [".."]
       segments (escapes upward). *)
   val of_fpath : Fpath.t -> t option
 
-  (** This is a convenient wrapper to compose {!Fpath.of_string} and {!of_fpath}. *)
+  (** This is a convenient wrapper to compose [Fpath.of_string] and {!of_fpath}. *)
   val of_string : string -> (t, [ `Msg of string ]) Result.t
 
   (** [v str] returns a [t] or raises [Invalid_argument]. *)
@@ -151,14 +151,14 @@ module Relative_path : sig
   val empty : t
 
   (** [append t1 t2] appends relative path [t2] to relative path [t1] and
-      normalizes the result via {!Fpath.normalize}.
+      normalizes the result via [Fpath.normalize].
 
       Raises [Invalid_argument] if the normalized result would escape upward
       (contains leading [".."] segments). *)
   val append : t -> t -> t
 
   (** [extend t seg] appends filesystem segment [seg] to path [t] and
-      normalizes the result via {!Fpath.normalize}.
+      normalizes the result via [Fpath.normalize].
 
       Raises [Invalid_argument] if the normalized result would escape upward
       (contains leading [".."] segments).
@@ -216,12 +216,12 @@ end
 (** This module is re-exported as part of the [Fpath] module. For example:
     [Fpath.classify]. *)
 module Export : sig
-  (** [classify path] normalizes [path] via {!Fpath.normalize} and classifies
+  (** [classify path] normalizes [path] via [Fpath.normalize] and classifies
       it as either absolute or relative.
 
       Raises [Invalid_argument] if [path] is relative and the normalized result
       contains leading [".."] segments (escapes upward). Absolute paths always
-      have their [".."] segments resolved by {!Fpath.normalize}. *)
+      have their [".."] segments resolved by [Fpath.normalize]. *)
   val classify
     :  Fpath.t
     -> [ `Absolute of Absolute_path.t | `Relative of Relative_path.t ]
