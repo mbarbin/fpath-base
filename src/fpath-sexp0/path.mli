@@ -114,7 +114,7 @@ module Relative_path : sig
 
       This invariant is enforced at construction time: all functions that create
       values of type [t] (such as {!of_fpath}, {!of_string}, {!v}, {!extend})
-      will raise [Invalid_argument] if the resuling path would violate this
+      will raise [Invalid_argument] if the resulting path would violate this
       property.
 
       Examples:
