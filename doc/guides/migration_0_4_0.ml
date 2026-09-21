@@ -153,7 +153,21 @@ let find_project_root ~has_marker current_path =
 
 (* @mdexp.end *)
 
-let _ = find_project_root
+let%expect_test "find_project_root" =
+  let has_marker path =
+    Option.is_some (Absolute_path.chop_suffix path ~suffix:(Relative_path.v "root/"))
+  in
+  let test path =
+    match find_project_root ~has_marker path with
+    | None -> print_endline "None"
+    | Some path -> print_endline (Absolute_path.to_string path)
+  in
+  test (Absolute_path.v "/my/project/root/and/a/path/in/it");
+  [%expect {| /my/project/root/ |}];
+  test (Absolute_path.v "/not/a/project");
+  [%expect {| None |}];
+  ()
+;;
 
 (* @mdexp
 
